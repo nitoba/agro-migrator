@@ -14,11 +14,11 @@ export abstract class MigrationFileBuilder {
   private timestamp: number
 
   constructor({ migrationName, outputDir }: MigrationFileBuilderArgs) {
+    this.timestamp = Date.now()
     this.migrationName = migrationName
     this.outputDir = outputDir
     this.className = this.generateClassName(migrationName)
     this.upStatements = []
-    this.timestamp = Date.now()
   }
 
   private generateClassName(name: string): string {
