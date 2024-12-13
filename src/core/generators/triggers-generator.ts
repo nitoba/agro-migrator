@@ -39,15 +39,15 @@ export function generateTriggersSQLFromColumns({
 
   // Tipos de operação e seus respectivos prefixos
   const operations = [
-    { op: 'I', prefix: 'NEW', event: 'INSERT', type: 'di' },
-    { op: 'A', prefix: 'NEW', event: 'UPDATE', type: 'da' },
-    { op: 'E', prefix: 'OLD', event: 'DELETE', type: 'de' },
+    { op: 'I', prefix: 'NEW', event: 'INSERT', suffix: 'di' },
+    { op: 'A', prefix: 'NEW', event: 'UPDATE', suffix: 'da' },
+    { op: 'E', prefix: 'OLD', event: 'DELETE', suffix: 'de' },
   ] as const
 
   // Gerar SQL para cada operação
-  const triggers = operations.map(({ op, prefix, event, type }) =>
+  const triggers = operations.map(({ op, prefix, event, suffix }) =>
     `
-    CREATE TRIGGER ${tableName}_${type} 
+    CREATE TRIGGER ${tableName}_${suffix} 
     AFTER ${event} ON ${tableName} FOR EACH ROW 
     BEGIN
       CALL getConnectionInfo(@cnn_usuario, @cnn_plataforma, @cnn_ip_reverso, @cnn_sistema_operacional, @cnn_requisicao_id);

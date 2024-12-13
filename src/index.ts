@@ -7,13 +7,14 @@ import { loadConfig } from './utils/load-config'
 import { logger } from './utils/logger'
 
 try {
-  logger.info('Inicializando a aplicação... 🍃'.toUpperCase())
-
+  logger.info('Carregando configurações... 🛠️'.toUpperCase())
   const config = await loadConfig()
-  createConnectionWithConfig(config.dbConnection)
+  logger.info('Configuração carregada com sucesso. 🛠️  ✅'.toUpperCase())
+  logger.info('Iniciando conexão com o banco de dados... 🌐'.toUpperCase())
+  await createConnectionWithConfig(config.dbConnection)
+  logger.info('Conexão com o banco de dados estabelecida. 🌐 ✅'.toUpperCase())
 
-  logger.info('Configuração carregada com sucesso. '.toUpperCase())
-
+  logger.info('Inicializando a aplicação... 🍃'.toUpperCase())
   const migrationPrompts = new MigrationPrompts(config)
   const migrationFactory = new MigrationFactory()
 
