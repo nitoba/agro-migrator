@@ -1,0 +1,27 @@
+{
+  "name": "agro-migrator",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run ./src/index.ts",
+    "build": "bun build ./src/index.ts --outfile agro-migrator --compile --minify"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@clack/prompts": "0.8.2",
+    "@types/node": "22.10.2",
+    "chalk": "^5.3.0",
+    "gradient-string": "3.0.0",
+    "mysql2": "^3.11.5",
+    "node-sql-parser": "5.3.5",
+    "typeorm": "0.3.20",
+    "winston": "^3.17.0",
+    "zod": "^3.24.1"
+  }
+}
