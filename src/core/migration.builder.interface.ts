@@ -11,19 +11,21 @@ export abstract class MigrationFileBuilder {
   protected outputDir: string
   protected className: string
   protected upStatements: string[]
+  private timestamp: number
 
   constructor({ migrationName, outputDir }: MigrationFileBuilderArgs) {
     this.migrationName = migrationName
     this.outputDir = outputDir
     this.className = this.generateClassName(migrationName)
     this.upStatements = []
+    this.timestamp = Date.now()
   }
 
   private generateClassName(name: string): string {
     return name
       .split(/[_,-]/)
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join('')
+      .join('') + this.timestamp
   }
 
   public abstract addToUpStatementsFromSQL(sqlStatements?: string[]): void
@@ -55,6 +57,6 @@ export class ${this.className} implements MigrationInterface {
   }
 
   public getMigrationFilePath(): string {
-    return path.join(this.outputDir, `${Date.now()}-${this.migrationName}.ts`)
+    return path.join(this.outputDir, `${this.timestamp}-${this.migrationName}.ts`)
   }
 }
