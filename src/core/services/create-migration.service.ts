@@ -48,7 +48,21 @@ export class CreateMigrationService extends MigrationService {
         `DROP TABLE IF EXISTS ad_${tableDef.tableName};`
       )
       allTriggersSQL.push(triggersSQL)
-      allDropTriggersSQL.push(triggersSQL)
+
+      allDropTriggersSQL.push({
+        insertTrigger: {
+          name: triggersSQL.insertTrigger.name,
+          content: '',
+        },
+        updateTrigger: {
+          name: triggersSQL.updateTrigger.name,
+          content: '',
+        },
+        deleteTrigger: {
+          name: triggersSQL.deleteTrigger.name,
+          content: '',
+        },
+      })
     }
 
     const downSQLStatements = downSQL

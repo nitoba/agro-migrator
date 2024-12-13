@@ -8,7 +8,7 @@ export interface MigrationParams {
 export abstract class MigrationService {
   abstract generateMigration(params: MigrationParams): Promise<string>
 
-  async processSQLFile(
+  protected async processSQLFile(
     sqlFilePath: string
   ): Promise<ReturnType<typeof parseMigrationSQL>> {
     const sqlContent = await Bun.file(sqlFilePath).text()

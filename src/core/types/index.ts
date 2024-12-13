@@ -25,6 +25,7 @@ export interface AlterColumnOperation {
     | 'drop_constraint'
     | 'rename_table'
     | 'change'
+    | 'drop_table'
   columnName?: string
   columnType?: string
   isNullable?: boolean

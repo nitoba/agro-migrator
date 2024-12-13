@@ -44,12 +44,24 @@ export class DefaultMigrationFileBuilder extends MigrationFileBuilder {
         this.downStatements.push(
           `await queryRunner.query(\`DROP TRIGGER IF EXISTS ${insertTrigger.name};\`)`
         )
+        insertTrigger.content &&
+          this.downStatements.push(
+            `await queryRunner.query(\`${insertTrigger.content}\`)`
+          )
         this.downStatements.push(
           `await queryRunner.query(\`DROP TRIGGER IF EXISTS ${updateTrigger.name};\`)`
         )
+        updateTrigger.content &&
+          this.downStatements.push(
+            `await queryRunner.query(\`${updateTrigger.content}\`)`
+          )
         this.downStatements.push(
           `await queryRunner.query(\`DROP TRIGGER IF EXISTS ${deleteTrigger.name};\`)`
         )
+        deleteTrigger.content &&
+          this.downStatements.push(
+            `await queryRunner.query(\`${deleteTrigger.content}\`)`
+          )
       }
     }
   }
