@@ -6,10 +6,19 @@ import type {
 import { MigrationFileBuilder } from '../../core/migration.builder.interface'
 
 export class DefaultMigrationFileBuilder extends MigrationFileBuilder {
+  
   public addToUpStatementsFromSQL(sqlStatements?: string[]): void {
     if (sqlStatements && sqlStatements.length > 0) {
       for (const sqlStatement of sqlStatements) {
         this.upStatements.push(`await queryRunner.query(\`${sqlStatement}\`);`)
+      }
+    }
+  }
+
+  public addToDownStatementsFromSQL(sqlStatements?: string[]): void {
+    if (sqlStatements && sqlStatements.length > 0) {
+      for (const sqlStatement of sqlStatements) {
+        this.downStatements.push(`await queryRunner.query(\`${sqlStatement}\`);`);
       }
     }
   }

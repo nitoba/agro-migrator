@@ -1,3 +1,4 @@
+-- #UP
 CREATE TABLE users (
     id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
@@ -17,3 +18,7 @@ CREATE TABLE posts (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)  
 );
+
+-- #DOWN
+DROP TABLE users;
+DROP TABLE posts;

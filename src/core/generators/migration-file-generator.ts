@@ -3,6 +3,7 @@ import type { CreateRoutineDefinition, TriggersResult } from '../types'
 
 interface GenerateMigrationFileOptions {
   mainTableSQLStatements?: string[]
+  mainTableSQLDownStatements?: string[]
   auditTableSQLStatements?: string[]
   triggersSQLStatements?: TriggersResult[]
   routineSQLStatement?: string
@@ -17,6 +18,7 @@ export async function generateMigrationFile(
   const {
     triggersSQLStatements,
     mainTableSQLStatements,
+    mainTableSQLDownStatements,
     customSQLStatement,
     routineSQLStatement,
     auditTableSQLStatements,
@@ -24,6 +26,7 @@ export async function generateMigrationFile(
   } = options
 
   builder.addToUpStatementsFromSQL(mainTableSQLStatements)
+  builder.addToDownStatementsFromSQL(mainTableSQLDownStatements)
   builder.addToUpStatementsFromSQL(auditTableSQLStatements)
   builder.addTriggersSQL(triggersSQLStatements)
   builder.addToUpStatementsFromRoutineSQL(

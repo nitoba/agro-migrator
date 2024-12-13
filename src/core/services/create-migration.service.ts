@@ -20,12 +20,11 @@ export class CreateMigrationService extends MigrationService {
       ? path.resolve(sqlFiles.currentSqlFile)
       : ''
 
-    // Lê o arquivo SQL
-    const mainTableSQL =
-      fullPath.length > 0 ? await Bun.file(fullPath).text() : ''
+    // Lê e separa as seções UP e DOWN do arquivo SQL
+    const { up: upSQL, down: downSQL } = await this.processSQLFile(fullPath)
 
-    // Analisa o arquivo SQL
-    const tableDefs = parseCreateTableSQL(mainTableSQL)
+    // Analisa o UP SQL
+    const tableDefs = parseCreateTableSQL(upSQL)
 
     const allCreateMainTableSQL: string[] = []
     const allCreateAuditTableSQL: string[] = []
@@ -46,9 +45,12 @@ export class CreateMigrationService extends MigrationService {
       allTriggersSQL.push(triggersSQL)
     }
 
+    const downSQLStatements = downSQL.split(';').filter(Boolean)
+
     const migrationFilePathCreated = await generateMigrationFile(
       {
         mainTableSQLStatements: allCreateMainTableSQL,
+        mainTableSQLDownStatements: downSQLStatements,
         auditTableSQLStatements: allCreateAuditTableSQL,
         triggersSQLStatements: allTriggersSQL,
       },

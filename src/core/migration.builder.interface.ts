@@ -11,6 +11,7 @@ export abstract class MigrationFileBuilder {
   protected outputDir: string
   protected className: string
   protected upStatements: string[]
+  protected downStatements: string[] = [];
   private timestamp: number
 
   constructor({ migrationName, outputDir }: MigrationFileBuilderArgs) {
@@ -29,6 +30,7 @@ export abstract class MigrationFileBuilder {
   }
 
   public abstract addToUpStatementsFromSQL(sqlStatements?: string[]): void
+  public abstract addToDownStatementsFromSQL(sqlStatements?: string[]): void
   public abstract addTriggersSQL(triggersStatements?: TriggersResult[]): void
   public abstract addToUpStatementsFromRoutineSQL(
     routineSQL?: string,
@@ -48,9 +50,7 @@ export class ${this.className} implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Implementar caso necessário: 
-    // Remover triggers, rotinas, alterações e etc.
-    // Ex: await queryRunner.query("DROP TABLE ...");
+    ${this.downStatements.join('\n    ').trim()}
   }
 }
 `.trim()
