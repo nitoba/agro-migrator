@@ -2,10 +2,12 @@ import type { MigrationFileBuilder } from '../migration.builder.interface'
 import type { CreateRoutineDefinition, TriggersResult } from '../types'
 
 interface GenerateMigrationFileOptions {
-  mainTableSQLStatements?: string[]
-  mainTableSQLDownStatements?: string[]
-  auditTableSQLStatements?: string[]
-  triggersSQLStatements?: TriggersResult[]
+  upSQLStatements?: string[]
+  downSQLStatements?: string[]
+  auditUpSQLStatements?: string[]
+  auditDownSQLStatements?: string[]
+  triggersUpSQLStatements?: TriggersResult[]
+  triggersDownSQLStatements?: TriggersResult[]
   routineSQLStatement?: string
   routineDefinitions?: CreateRoutineDefinition
   customSQLStatement?: string
@@ -16,24 +18,31 @@ export async function generateMigrationFile(
   builder: MigrationFileBuilder
 ): Promise<string> {
   const {
-    triggersSQLStatements,
-    mainTableSQLStatements,
-    mainTableSQLDownStatements,
+    triggersUpSQLStatements,
+    triggersDownSQLStatements,
+    upSQLStatements,
+    downSQLStatements,
+    auditUpSQLStatements,
+    auditDownSQLStatements,
     customSQLStatement,
     routineSQLStatement,
-    auditTableSQLStatements,
     routineDefinitions,
   } = options
 
-  builder.addToUpStatementsFromSQL(mainTableSQLStatements)
-  builder.addToDownStatementsFromSQL(mainTableSQLDownStatements)
-  builder.addToUpStatementsFromSQL(auditTableSQLStatements)
-  builder.addTriggersSQL(triggersSQLStatements)
+  // Adiciona os statements para o UP
+  builder.addToUpStatementsFromCustomSQL(customSQLStatement)
   builder.addToUpStatementsFromRoutineSQL(
     routineSQLStatement,
     routineDefinitions
   )
-  builder.addToUpStatementsFromCustomSQL(customSQLStatement)
+  builder.addToUpStatementsFromSQL(upSQLStatements)
+  builder.addToUpStatementsFromSQL(auditUpSQLStatements)
+  builder.addToUpStatementsFromTriggersSQL(triggersUpSQLStatements)
+
+  // Adiciona os statements para o DOWN
+  builder.addToDownStatementsFromTriggersSQL(triggersDownSQLStatements)
+  builder.addToDownStatementsFromSQL(auditDownSQLStatements)
+  builder.addToDownStatementsFromSQL(downSQLStatements)
 
   const content = builder.buildMigrationFileContent()
   const migrationFilePath = builder.getMigrationFilePath()

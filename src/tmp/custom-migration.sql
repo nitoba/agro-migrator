@@ -1,3 +1,5 @@
+-- #UP
+
 -- Migration: Create users table with basic authentication fields
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
@@ -50,3 +52,12 @@ INSERT INTO roles (name, description) VALUES
     ('admin', 'System administrator with full access'),
     ('user', 'Regular user with basic access')
 ON CONFLICT (name) DO NOTHING;
+
+
+-- #DOWN
+DROP TABLE IF EXISTS user_roles;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS users;
+DROP FUNCTION IF EXISTS update_updated_at_column;
+DROP INDEX IF EXISTS idx_users_username;
+DROP INDEX IF EXISTS idx_users_email

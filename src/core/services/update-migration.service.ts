@@ -123,9 +123,9 @@ export class UpdateMigrationService extends MigrationService {
     // Gerar o arquivo de migration
     const migrationFilePathCreated = await generateMigrationFile(
       {
-        mainTableSQLStatements: allAlterMainTableSQL,
-        auditTableSQLStatements: allAlterAuditTableSQL,
-        triggersSQLStatements: allTriggersSQL,
+        upSQLStatements: allAlterMainTableSQL,
+        auditUpSQLStatements: allAlterAuditTableSQL,
+        triggersUpSQLStatements: allTriggersSQL,
       },
       this.migrationBuilder
     )

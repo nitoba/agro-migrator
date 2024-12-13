@@ -11,7 +11,7 @@ export abstract class MigrationFileBuilder {
   protected outputDir: string
   protected className: string
   protected upStatements: string[]
-  protected downStatements: string[] = [];
+  protected downStatements: string[] = []
   private timestamp: number
 
   constructor({ migrationName, outputDir }: MigrationFileBuilderArgs) {
@@ -23,15 +23,22 @@ export abstract class MigrationFileBuilder {
   }
 
   private generateClassName(name: string): string {
-    return name
-      .split(/[_,-]/)
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-      .join('') + this.timestamp
+    return (
+      name
+        .split(/[_,-]/)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join('') + this.timestamp
+    )
   }
 
   public abstract addToUpStatementsFromSQL(sqlStatements?: string[]): void
   public abstract addToDownStatementsFromSQL(sqlStatements?: string[]): void
-  public abstract addTriggersSQL(triggersStatements?: TriggersResult[]): void
+  public abstract addToUpStatementsFromTriggersSQL(
+    triggersStatements?: TriggersResult[]
+  ): void
+  public abstract addToDownStatementsFromTriggersSQL(
+    triggersStatements?: TriggersResult[]
+  ): void
   public abstract addToUpStatementsFromRoutineSQL(
     routineSQL?: string,
     routineDefinitions?: CreateRoutineDefinition
@@ -57,6 +64,9 @@ export class ${this.className} implements MigrationInterface {
   }
 
   public getMigrationFilePath(): string {
-    return path.join(this.outputDir, `${this.timestamp}-${this.migrationName}.ts`)
+    return path.join(
+      this.outputDir,
+      `${this.timestamp}-${this.migrationName}.ts`
+    )
   }
 }

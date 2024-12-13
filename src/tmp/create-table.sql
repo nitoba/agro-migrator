@@ -20,5 +20,5 @@ CREATE TABLE posts (
 );
 
 -- #DOWN
-DROP TABLE users;
-DROP TABLE posts;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS posts;

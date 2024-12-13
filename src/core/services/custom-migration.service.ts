@@ -11,16 +11,24 @@ export class CustomMigrationService extends MigrationService {
   }
 
   async generateMigration({ sqlFiles }: MigrationParams): Promise<string> {
-    let sqlContent: string | undefined
+    let sqlContent: Awaited<ReturnType<typeof this.processSQLFile>> | undefined
 
     if (sqlFiles.currentSqlFile) {
-      const fullPath = sqlFiles.currentSqlFile
-      sqlContent = await Bun.file(fullPath).text()
+      sqlContent = await this.processSQLFile(sqlFiles.currentSqlFile)
     }
+
+    const upSQL = sqlContent?.up
+    const downSQL = sqlContent?.down
+
+    const downSQLStatements = downSQL
+      ?.split(';')
+      .filter(Boolean)
+      .map((s) => `${s.trim()};`)
 
     const migrationFilePathCreated = await generateMigrationFile(
       {
-        customSQLStatement: sqlContent,
+        customSQLStatement: upSQL,
+        downSQLStatements: downSQLStatements,
       },
       this.migrationBuilder
     )

@@ -18,19 +18,25 @@ export class RoutinesMigrationService extends MigrationService {
       throw new Error('Nenhum arquivo SQL fornecido.')
     }
 
-    const fullPath = sqlFiles.currentSqlFile
-
-    const routineSQL = await Bun.file(fullPath).text()
-    const routineDef = parseCreateRoutineSQL(routineSQL)
+    const { up: upSQL, down: downSQL } = await this.processSQLFile(
+      sqlFiles.currentSqlFile
+    )
+    const routineDef = parseCreateRoutineSQL(upSQL)
 
     if (!routineDef) {
       logger.error('Nenhuma definição de rotina encontrada no arquivo SQL.')
       throw new Error('Nenhuma definição de rotina encontrada no arquivo SQL.')
     }
 
+    const downSQLStatements = downSQL
+      .split(';')
+      .filter(Boolean)
+      .map((s) => `${s.trim()};`)
+
     const migrationFilePathCreated = await generateMigrationFile(
       {
-        routineSQLStatement: routineSQL,
+        routineSQLStatement: upSQL,
+        downSQLStatements: downSQLStatements,
         routineDefinitions: routineDef,
       },
       this.migrationBuilder

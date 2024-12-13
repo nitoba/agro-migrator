@@ -6,11 +6,10 @@ import type {
 import { MigrationFileBuilder } from '../../core/migration.builder.interface'
 
 export class DefaultMigrationFileBuilder extends MigrationFileBuilder {
-  
   public addToUpStatementsFromSQL(sqlStatements?: string[]): void {
     if (sqlStatements && sqlStatements.length > 0) {
       for (const sqlStatement of sqlStatements) {
-        this.upStatements.push(`await queryRunner.query(\`${sqlStatement}\`);`)
+        this.upStatements.push(`await queryRunner.query(\`${sqlStatement}\`)`)
       }
     }
   }
@@ -18,12 +17,14 @@ export class DefaultMigrationFileBuilder extends MigrationFileBuilder {
   public addToDownStatementsFromSQL(sqlStatements?: string[]): void {
     if (sqlStatements && sqlStatements.length > 0) {
       for (const sqlStatement of sqlStatements) {
-        this.downStatements.push(`await queryRunner.query(\`${sqlStatement}\`);`);
+        this.downStatements.push(`await queryRunner.query(\`${sqlStatement}\`)`)
       }
     }
   }
 
-  public addTriggersSQL(triggersStatements?: TriggersResult[]): void {
+  public addToUpStatementsFromTriggersSQL(
+    triggersStatements?: TriggersResult[]
+  ): void {
     if (triggersStatements && triggersStatements.length > 0) {
       for (const trigger of triggersStatements) {
         const { insertTrigger, updateTrigger, deleteTrigger } = trigger
@@ -34,10 +35,29 @@ export class DefaultMigrationFileBuilder extends MigrationFileBuilder {
     }
   }
 
+  public addToDownStatementsFromTriggersSQL(
+    triggersStatements?: TriggersResult[]
+  ): void {
+    if (triggersStatements && triggersStatements.length > 0) {
+      for (const trigger of triggersStatements) {
+        const { insertTrigger, updateTrigger, deleteTrigger } = trigger
+        this.downStatements.push(
+          `await queryRunner.query(\`DROP TRIGGER IF EXISTS ${insertTrigger.name};\`)`
+        )
+        this.downStatements.push(
+          `await queryRunner.query(\`DROP TRIGGER IF EXISTS ${updateTrigger.name};\`)`
+        )
+        this.downStatements.push(
+          `await queryRunner.query(\`DROP TRIGGER IF EXISTS ${deleteTrigger.name};\`)`
+        )
+      }
+    }
+  }
+
   private addTriggerSQL(trigger?: TriggerDefinition): void {
     if (trigger) {
       this.upStatements.push(
-        `await queryRunner.query(\`DROP TRIGGER IF EXISTS ${trigger.name};\`);`
+        `await queryRunner.query(\`DROP TRIGGER IF EXISTS ${trigger.name};\`)`
       )
       this.addToUpStatementsFromSQL([trigger.content])
     }
@@ -49,7 +69,7 @@ export class DefaultMigrationFileBuilder extends MigrationFileBuilder {
   ): void {
     if (routineSQL && routineSQL.length > 0 && routineDefinitions) {
       this.upStatements.push(
-        `await queryRunner.query('DROP ${routineDefinitions.routineType} IF EXISTS ${routineDefinitions.routineName}');`
+        `await queryRunner.query('DROP ${routineDefinitions.routineType} IF EXISTS ${routineDefinitions.routineName}')`
       )
       this.addToUpStatementsFromSQL([routineSQL])
     }

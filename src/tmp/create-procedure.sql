@@ -1,3 +1,4 @@
+-- #UP
 CREATE PROCEDURE ProcessUserData(
     IN userId INT,
     IN actionType VARCHAR(50),
@@ -33,3 +34,7 @@ BEGIN
 
     COMMIT;
 END;
+
+
+-- #DOWN
+DROP PROCEDURE IF EXISTS ProcessUserData;
