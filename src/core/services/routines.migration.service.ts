@@ -30,7 +30,7 @@ export class RoutinesMigrationService extends MigrationService {
 
     const migrationFilePathCreated = await generateMigrationFile(
       {
-        routineSQL,
+        routineSQLStatement: routineSQL,
         routineDefinitions: routineDef,
       },
       this.migrationBuilder

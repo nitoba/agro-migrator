@@ -19,7 +19,6 @@ type DefaultVal = {
 }
 
 export function parseCreateTableSQL(sql: string): TableDefinition[] {
-  // Parse usando node-sql-parser
   const asts = parser.astify(sql)
 
   const createStatements = (Array.isArray(asts) ? asts : [asts]).filter(

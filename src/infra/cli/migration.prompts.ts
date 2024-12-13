@@ -1,11 +1,7 @@
+import type { SqlFiles } from '@/core/types'
 import type { MigrationConfig } from '@/core/types/config.schema'
 import { logger } from '@/utils/logger'
 import { group, select, text, isCancel, cancel, confirm } from '@clack/prompts'
-
-interface SqlFiles {
-  currentSqlFile?: string
-  originalMainTable?: string
-}
 
 export interface MigrationInfo {
   migrationType: string
@@ -69,27 +65,7 @@ export class MigrationPrompts {
           let withSQLFile = true
           const sqlFiles: SqlFiles = {
             currentSqlFile: '',
-            originalMainTable: undefined,
           }
-          // if (results.migrationType === 'update') {
-          //   const originalMainTable = await text({
-          //     message: 'Qual caminho do arquivo SQL da criação da tabela?',
-          //     placeholder: 'alter_users_table.sql',
-          //     validate: (value) => {
-          //       if (value.length === 0) {
-          //         return 'O nome do arquivo SQL não pode ser vazio'
-          //       }
-          //     },
-          //   })
-
-          //   if (isCancel(originalMainTable)) {
-          //     cancel('Tudo bem então, Tchau!')
-          //     logger.warn('Criação de migration cancelada!')
-          //     process.exit(0)
-          //   }
-
-          //   sqlFiles.originalMainTable = originalMainTable as string
-          // }
 
           if (results.migrationType === 'custom') {
             const shouldProvideASqlFile = await confirm({

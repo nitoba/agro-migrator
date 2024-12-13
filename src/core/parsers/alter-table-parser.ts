@@ -1,6 +1,5 @@
 import { Parser, type BaseFrom, type ColumnRefItem } from 'node-sql-parser'
-import type { AlterTableDefinition, AlterColumnOperation } from '../types' // Ajuste o path conforme seu projeto
-
+import type { AlterTableDefinition, AlterColumnOperation } from '../types'
 const parser = new Parser()
 
 export interface ActionNode {

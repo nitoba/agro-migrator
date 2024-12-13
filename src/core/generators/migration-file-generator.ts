@@ -2,14 +2,12 @@ import type { MigrationFileBuilder } from '../migration.builder.interface'
 import type { CreateRoutineDefinition, TriggersResult } from '../types'
 
 interface GenerateMigrationFileOptions {
-  mainTableSQL?: string[]
-  auditTableSQL?: string[]
-  triggersSQL?: TriggersResult[]
-  alterMainTableSQL?: string[]
-  alterAuditTableSQL?: string[]
-  routineSQL?: string
+  mainTableSQLStatements?: string[]
+  auditTableSQLStatements?: string[]
+  triggersSQLStatements?: TriggersResult[]
+  routineSQLStatement?: string
   routineDefinitions?: CreateRoutineDefinition
-  customSQL?: string
+  customSQLStatement?: string
 }
 
 export async function generateMigrationFile(
@@ -17,23 +15,22 @@ export async function generateMigrationFile(
   builder: MigrationFileBuilder
 ): Promise<string> {
   const {
-    mainTableSQL,
-    auditTableSQL,
-    triggersSQL,
-    alterMainTableSQL,
-    alterAuditTableSQL,
-    routineSQL,
+    triggersSQLStatements,
+    mainTableSQLStatements,
+    customSQLStatement,
+    routineSQLStatement,
+    auditTableSQLStatements,
     routineDefinitions,
-    customSQL,
   } = options
 
-  builder.addMainTableSQL(mainTableSQL)
-  builder.addAuditTableSQL(auditTableSQL)
-  builder.addTriggersSQL(triggersSQL)
-  builder.addAlterSQL(alterMainTableSQL)
-  builder.addAlterSQL(alterAuditTableSQL, true)
-  builder.addRoutineSQL(routineSQL, routineDefinitions)
-  builder.addCustomSQL(customSQL)
+  builder.addToUpStatementsFromSQL(mainTableSQLStatements)
+  builder.addToUpStatementsFromSQL(auditTableSQLStatements)
+  builder.addTriggersSQL(triggersSQLStatements)
+  builder.addToUpStatementsFromRoutineSQL(
+    routineSQLStatement,
+    routineDefinitions
+  )
+  builder.addToUpStatementsFromCustomSQL(customSQLStatement)
 
   const content = builder.buildMigrationFileContent()
   const migrationFilePath = builder.getMigrationFilePath()

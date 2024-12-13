@@ -20,7 +20,7 @@ export class CustomMigrationService extends MigrationService {
 
     const migrationFilePathCreated = await generateMigrationFile(
       {
-        customSQL: sqlContent,
+        customSQLStatement: sqlContent,
       },
       this.migrationBuilder
     )

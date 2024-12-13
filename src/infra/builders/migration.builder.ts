@@ -1,30 +1,22 @@
-import { MigrationFileBuilder } from '../../core/migration.builder.interface'
 import type {
   CreateRoutineDefinition,
   TriggerDefinition,
   TriggersResult,
-} from '../../core/types'
+} from '@/core/types'
+import { MigrationFileBuilder } from '../../core/migration.builder.interface'
 
 export class DefaultMigrationFileBuilder extends MigrationFileBuilder {
-  public addMainTableSQL(sql?: string[]): void {
-    if (sql && sql.length > 0) {
-      for (const sqlStatement of sql) {
+  public addToUpStatementsFromSQL(sqlStatements?: string[]): void {
+    if (sqlStatements && sqlStatements.length > 0) {
+      for (const sqlStatement of sqlStatements) {
         this.upStatements.push(`await queryRunner.query(\`${sqlStatement}\`);`)
       }
     }
   }
 
-  public addAuditTableSQL(sql?: string[]): void {
-    if (sql && sql.length > 0) {
-      for (const sqlStatement of sql) {
-        this.upStatements.push(`await queryRunner.query(\`${sqlStatement}\`);`)
-      }
-    }
-  }
-
-  public addTriggersSQL(triggers?: TriggersResult[]): void {
-    if (triggers && triggers.length > 0) {
-      for (const trigger of triggers) {
+  public addTriggersSQL(triggersStatements?: TriggersResult[]): void {
+    if (triggersStatements && triggersStatements.length > 0) {
+      for (const trigger of triggersStatements) {
         const { insertTrigger, updateTrigger, deleteTrigger } = trigger
         this.addTriggerSQL(insertTrigger)
         this.addTriggerSQL(updateTrigger)
@@ -38,19 +30,11 @@ export class DefaultMigrationFileBuilder extends MigrationFileBuilder {
       this.upStatements.push(
         `await queryRunner.query(\`DROP TRIGGER IF EXISTS ${trigger.name};\`);`
       )
-      this.upStatements.push(`await queryRunner.query(\`${trigger.content}\`);`)
+      this.addToUpStatementsFromSQL([trigger.content])
     }
   }
 
-  public addAlterSQL(statements?: string[], isAuditTable = false): void {
-    if (statements && statements.length > 0) {
-      for (const stmt of statements) {
-        this.upStatements.push(`await queryRunner.query(\`${stmt.trim()}\`);`)
-      }
-    }
-  }
-
-  public addRoutineSQL(
+  public addToUpStatementsFromRoutineSQL(
     routineSQL?: string,
     routineDefinitions?: CreateRoutineDefinition
   ): void {
@@ -58,16 +42,14 @@ export class DefaultMigrationFileBuilder extends MigrationFileBuilder {
       this.upStatements.push(
         `await queryRunner.query('DROP ${routineDefinitions.routineType} IF EXISTS ${routineDefinitions.routineName}');`
       )
-      this.upStatements.push(`await queryRunner.query(\`${routineSQL}\`);`)
+      this.addToUpStatementsFromSQL([routineSQL])
     }
   }
 
-  public addCustomSQL(customSQL?: string): void {
+  public addToUpStatementsFromCustomSQL(customSQL?: string): void {
     if (customSQL) {
       const sqlStatements = customSQL.split(';').filter((stmt) => stmt.trim())
-      for (const stmt of sqlStatements) {
-        this.upStatements.push(`await queryRunner.query(\`${stmt};\`);`)
-      }
+      this.addToUpStatementsFromSQL(sqlStatements)
     }
   }
 }

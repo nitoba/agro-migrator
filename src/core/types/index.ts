@@ -76,6 +76,5 @@ export interface CreateRoutineDefinition {
 }
 
 export type SqlFiles = {
-  currentSqlFile: string
-  originalMainTable?: string
+  currentSqlFile?: string
 }

@@ -1,7 +1,4 @@
-export interface SqlFiles {
-  currentSqlFile?: string
-  originalMainTable?: string
-}
+import type { SqlFiles } from './types'
 
 export interface MigrationParams {
   sqlFiles: SqlFiles

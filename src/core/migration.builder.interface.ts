@@ -26,23 +26,15 @@ export abstract class MigrationFileBuilder {
       .join('')
   }
 
-  public abstract addMainTableSQL(sql?: string[]): void
-
-  public abstract addAuditTableSQL(sql?: string[]): void
-
-  public abstract addTriggersSQL(triggers?: TriggersResult[]): void
-
-  public abstract addAlterSQL(
-    statements?: string[],
-    isAuditTable?: boolean
-  ): void
-
-  public abstract addRoutineSQL(
+  public abstract addToUpStatementsFromSQL(sqlStatements?: string[]): void
+  public abstract addTriggersSQL(triggersStatements?: TriggersResult[]): void
+  public abstract addToUpStatementsFromRoutineSQL(
     routineSQL?: string,
     routineDefinitions?: CreateRoutineDefinition
   ): void
-
-  public abstract addCustomSQL(customSQL?: string): void
+  public abstract addToUpStatementsFromCustomSQL(
+    customSQLStatement?: string
+  ): void
 
   public buildMigrationFileContent(): string {
     return `

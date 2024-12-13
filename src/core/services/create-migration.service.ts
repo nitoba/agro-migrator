@@ -48,9 +48,9 @@ export class CreateMigrationService extends MigrationService {
 
     const migrationFilePathCreated = await generateMigrationFile(
       {
-        mainTableSQL: allCreateMainTableSQL,
-        auditTableSQL: allCreateAuditTableSQL,
-        triggersSQL: allTriggersSQL,
+        mainTableSQLStatements: allCreateMainTableSQL,
+        auditTableSQLStatements: allCreateAuditTableSQL,
+        triggersSQLStatements: allTriggersSQL,
       },
       this.migrationBuilder
     )
