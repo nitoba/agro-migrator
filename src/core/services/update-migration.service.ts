@@ -1,7 +1,6 @@
 import { parseAlterTableSQL } from '@/core/parsers/alter-table-parser'
 import type { TriggerManager } from '@/core/generators/triggers-generator'
 import { generateMigrationFile } from '@/core/generators/migration-file-generator'
-import { logger } from '@/utils/logger'
 import type { AlterTableDefinition, TriggersResult } from '@/core/types'
 import type { Connection } from 'mysql2/promise'
 import {
@@ -32,12 +31,6 @@ export class UpdateMigrationService extends MigrationService {
   }
 
   async generateMigration({ sqlFilePath }: MigrationParams): Promise<string> {
-    if (!sqlFilePath) {
-      const message = 'Nenhum arquivo SQL fornecido.'
-      logger.error(message)
-      throw new Error(message)
-    }
-
     const { up: upSQL, down: downSQL } = await this.processSQLFile(sqlFilePath)
 
     const currentUpStatements = await this.processUpSQL(upSQL)
