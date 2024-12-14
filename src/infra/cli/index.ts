@@ -45,7 +45,7 @@ export class MigrationRunner {
   private async createMigration(
     migrationInfo: Awaited<ReturnType<MigrationPrompts['collectMigrationInfo']>>
   ): Promise<void> {
-    const { migrationType, migrationName, sqlFiles } = migrationInfo
+    const { migrationType, migrationName, sqlFile } = migrationInfo
     const finalOutputDir = this.config.outputDir
 
     const s = spinner()
@@ -64,7 +64,7 @@ export class MigrationRunner {
     )
 
     const migrationFilePath = await migrationService.generateMigration({
-      sqlFiles,
+      sqlFilePath: sqlFile,
     })
 
     s.stop('Migration create')

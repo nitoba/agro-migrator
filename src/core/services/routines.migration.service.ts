@@ -12,15 +12,8 @@ export class RoutinesMigrationService extends MigrationService {
     super()
   }
 
-  async generateMigration({ sqlFiles }: MigrationParams): Promise<string> {
-    if (!sqlFiles.currentSqlFile) {
-      logger.error('Nenhum arquivo SQL fornecido.')
-      throw new Error('Nenhum arquivo SQL fornecido.')
-    }
-
-    const { up: upSQL, down: downSQL } = await this.processSQLFile(
-      sqlFiles.currentSqlFile
-    )
+  async generateMigration({ sqlFilePath }: MigrationParams): Promise<string> {
+    const { up: upSQL, down: downSQL } = await this.processSQLFile(sqlFilePath)
     const routineDef = parseCreateRoutineSQL(upSQL)
 
     if (!routineDef) {

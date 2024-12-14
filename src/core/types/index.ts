@@ -75,7 +75,3 @@ export interface CreateRoutineDefinition {
   returnType?: string // para FUNCTION
   body?: string
 }
-
-export type SqlFiles = {
-  currentSqlFile?: string
-}

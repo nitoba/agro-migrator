@@ -1,4 +1,3 @@
-import type { SqlFiles } from '@/core/types'
 import type { MigrationConfig } from '@/core/types/config.schema'
 import { logger } from '@/utils/logger'
 import { group, select, text, isCancel, cancel, confirm } from '@clack/prompts'
@@ -7,7 +6,7 @@ export interface MigrationInfo {
   migrationType: string
   migrationName: string
   outputDir: string
-  sqlFiles: SqlFiles
+  sqlFile: string
 }
 
 export class MigrationPrompts {
@@ -61,11 +60,9 @@ export class MigrationPrompts {
               }
             },
           }),
-        sqlFiles: async ({ results }) => {
+        sqlFile: async ({ results }) => {
           let withSQLFile = true
-          const sqlFiles: SqlFiles = {
-            currentSqlFile: '',
-          }
+          let sqlFile: string | undefined
 
           if (results.migrationType === 'custom') {
             const shouldProvideASqlFile = await confirm({
@@ -103,10 +100,10 @@ export class MigrationPrompts {
               process.exit(0)
             }
 
-            sqlFiles.currentSqlFile = currentSqlMigrationFile as string
+            sqlFile = currentSqlMigrationFile as string
           }
 
-          return sqlFiles
+          return sqlFile
         },
         outputDir: () => {
           if (!this.config.outputDir) {

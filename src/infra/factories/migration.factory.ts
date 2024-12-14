@@ -6,6 +6,8 @@ import { UpdateMigrationService } from '../../core/services/update-migration.ser
 import type { MigrationFileBuilder } from '@/core/migration.builder.interface'
 import { logger } from '@/utils/logger'
 import { dbConnection } from '@/utils/db-connection'
+import { AuditSQLGenerator } from '@/core/generators/audit-table-alter-generator'
+import { TriggerManager } from '@/core/generators/triggers-generator'
 
 export class MigrationFactory {
   getMigrationService(
@@ -14,9 +16,17 @@ export class MigrationFactory {
   ): MigrationService {
     switch (migrationType) {
       case 'create':
-        return new CreateMigrationService(fileBuilderFactory())
+        return new CreateMigrationService(
+          fileBuilderFactory(),
+          new TriggerManager(dbConnection)
+        )
       case 'update':
-        return new UpdateMigrationService(fileBuilderFactory(), dbConnection)
+        return new UpdateMigrationService(
+          fileBuilderFactory(),
+          dbConnection,
+          new AuditSQLGenerator(),
+          new TriggerManager(dbConnection)
+        )
       case 'routine':
         return new RoutinesMigrationService(fileBuilderFactory())
       case 'custom':

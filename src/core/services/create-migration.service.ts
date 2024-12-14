@@ -1,27 +1,25 @@
-import path from 'node:path'
 import {
   MigrationService,
   type MigrationParams,
 } from '@/core/migration.service.interface'
 import { parseCreateTableSQL } from '@/core/parsers/create-table-parser'
 import { generateAuditTableSQL } from '@/core/generators/audit-table-create-generator'
-import { generateTriggersSQLFromColumns } from '@/core/generators/triggers-generator'
+import type { TriggerManager } from '@/core/generators/triggers-generator'
 import { generateMigrationFile } from '@/core/generators/migration-file-generator'
 import type { MigrationFileBuilder } from '../migration.builder.interface'
 import type { TriggersResult } from '../types'
 
 export class CreateMigrationService extends MigrationService {
-  constructor(private readonly migrationBuilder: MigrationFileBuilder) {
+  constructor(
+    private readonly migrationBuilder: MigrationFileBuilder,
+    private readonly triggerManager: TriggerManager
+  ) {
     super()
   }
 
-  async generateMigration({ sqlFiles }: MigrationParams): Promise<string> {
-    const fullPath = sqlFiles.currentSqlFile
-      ? path.resolve(sqlFiles.currentSqlFile)
-      : ''
-
+  async generateMigration({ sqlFilePath }: MigrationParams): Promise<string> {
     // Lê e separa as seções UP e DOWN do arquivo SQL
-    const { up: upSQL, down: downSQL } = await this.processSQLFile(fullPath)
+    const { up: upSQL, down: downSQL } = await this.processSQLFile(sqlFilePath)
 
     // Analisa o UP SQL
     const tableDefs = parseCreateTableSQL(upSQL)
@@ -37,7 +35,7 @@ export class CreateMigrationService extends MigrationService {
       // Gera tabela de auditoria
       const auditTableSQL = generateAuditTableSQL(tableDef)
       // Gera triggers
-      const triggersSQL = generateTriggersSQLFromColumns({
+      const triggersSQL = this.triggerManager.generateTriggersSQLFromColumns({
         tableName: tableDef.tableName,
         columns: tableDef.columns.map((c) => c.name),
       })

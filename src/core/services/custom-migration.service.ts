@@ -10,11 +10,11 @@ export class CustomMigrationService extends MigrationService {
     super()
   }
 
-  async generateMigration({ sqlFiles }: MigrationParams): Promise<string> {
+  async generateMigration({ sqlFilePath }: MigrationParams): Promise<string> {
     let sqlContent: Awaited<ReturnType<typeof this.processSQLFile>> | undefined
 
-    if (sqlFiles.currentSqlFile) {
-      sqlContent = await this.processSQLFile(sqlFiles.currentSqlFile)
+    if (sqlFilePath) {
+      sqlContent = await this.processSQLFile(sqlFilePath)
     }
 
     const upSQL = sqlContent?.up

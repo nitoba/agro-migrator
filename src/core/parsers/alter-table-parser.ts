@@ -14,6 +14,48 @@ export interface ActionNode {
   type: string
   index?: string
   constraint?: string
+  create_definitions?: CreateDefinition
+}
+
+export interface CreateDefinition {
+  constraint: string
+  definition: Definition[]
+  constraint_type: string
+  keyword: string
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  index: any
+  resource: string
+  reference_definition: ReferenceDefinition
+}
+
+export interface ReferenceDefinition {
+  definition: Definition2[]
+  table: Table[]
+  keyword: string
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  match: any
+  on_action: {
+    type: string
+    value: {
+      type: string
+      value: string
+    }
+  }[]
+}
+
+export interface Definition2 {
+  type: string
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  table: any
+  column: string
+}
+
+export interface Table {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  db: any
+  table: string
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  as: any
 }
 
 export interface Column {
@@ -254,22 +296,26 @@ function handleConstraintActions(
 ): AlterColumnOperation[] {
   switch (actionNode.action) {
     case 'add': {
-      const cDef = actionNode.definition
-      if (cDef.constraint_type === 'FOREIGN KEY' && cDef.reference_definition) {
+      if (actionNode.create_definitions?.constraint_type === 'FOREIGN KEY') {
+        const cDef = actionNode.create_definitions
         return [
           {
             action: 'add_constraint',
             constraintName: cDef.constraint,
             constraintType: cDef.constraint_type.toUpperCase(),
-            referencedTable: cDef.reference_definition.table,
+            referencedTable: cDef.reference_definition.table[0].table,
             referencedColumns:
-              cDef.reference_definition.definition?.map((col: ColumnRefItem) =>
-                typeof col.column === 'string'
-                  ? col.column
-                  : col.column?.expr.value.toString() || ''
+              cDef.reference_definition.definition?.map((col) =>
+                typeof col.column === 'string' ? col.column : ''
               ) || [],
-            referencedOnDelete: cDef.reference_definition.on_delete,
-            referencedOnUpdate: cDef.reference_definition.on_update,
+            referencedOnDelete:
+              cDef.reference_definition.on_action.find(
+                (item) => item.type === 'on delete'
+              )?.value.value || '',
+            referencedOnUpdate:
+              cDef.reference_definition.on_action.find(
+                (item) => item.type === 'on update'
+              )?.value.value || '',
           },
         ]
       }
@@ -289,11 +335,3 @@ function handleConstraintActions(
   }
   return []
 }
-
-// const alterDefs = parseAlterTableSQL(`
-// ALTER TABLE user ADD COLUMN last_login TIMESTAMP;
-// ALTER TABLE user RENAME COLUMN name TO nome;
-// ALTER TABLE user CHANGE COLUMN nome usuario_nome VARCHAR(255) NOT NULL;
-// `)
-
-// console.log(JSON.stringify(alterDefs, null, 2))
