@@ -1,11 +1,7 @@
 import { logoWithGradient } from '@/utils/logo'
 import { intro, confirm, isCancel, cancel, spinner, log } from '@clack/prompts'
-import type { MigrationPrompts } from './migration.prompts'
+import type { MigrationInfo, MigrationPrompts } from './migration.prompts'
 import type { MigrationFactory } from '@/infra/factories/migration.factory'
-import type {
-  MigrationFileBuilder,
-  MigrationFileBuilderArgs,
-} from '@/core/migration.builder.interface'
 import type { MigrationConfig } from '@/core/types/config.schema'
 import { logger } from '@/utils/logger'
 import chalk from 'chalk'
@@ -14,10 +10,7 @@ export class MigrationRunner {
   constructor(
     private readonly config: MigrationConfig,
     private readonly migrationFactory: MigrationFactory,
-    private readonly migrationPrompts: MigrationPrompts,
-    private readonly migrationFileBuilder: new (
-      args: MigrationFileBuilderArgs
-    ) => MigrationFileBuilder
+    private readonly migrationPrompts: MigrationPrompts
   ) {}
 
   private async initialize(): Promise<void> {
@@ -36,17 +29,13 @@ export class MigrationRunner {
     }
   }
 
-  private async collectMigrationInfo(): Promise<
-    ReturnType<MigrationPrompts['collectMigrationInfo']>
-  > {
+  private async collectMigrationInfo(): Promise<MigrationInfo> {
     return await this.migrationPrompts.collectMigrationInfo()
   }
 
-  private async createMigration(
-    migrationInfo: Awaited<ReturnType<MigrationPrompts['collectMigrationInfo']>>
-  ): Promise<void> {
-    const { migrationType, migrationName, sqlFile } = migrationInfo
-    const finalOutputDir = this.config.outputDir
+  private async createMigration(migrationInfo: MigrationInfo): Promise<void> {
+    const { migrationType, migrationName, sqlFile, outputDir } = migrationInfo
+    const finalOutputDir = this.config.outputDir ?? outputDir
 
     const s = spinner()
     s.start('Migration create')
@@ -55,12 +44,8 @@ export class MigrationRunner {
     // Lazy creation of DefaultMigrationFileBuilder
     const migrationService = this.migrationFactory.getMigrationService(
       migrationType,
-      () => {
-        return new this.migrationFileBuilder({
-          migrationName,
-          outputDir: finalOutputDir,
-        })
-      }
+      migrationName,
+      finalOutputDir
     )
 
     const migrationFilePath = await migrationService.generateMigration({

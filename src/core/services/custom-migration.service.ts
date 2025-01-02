@@ -2,9 +2,56 @@ import type { MigrationFileGenerator } from '@/core/generators/migration-file-ge
 import {
   MigrationService,
   type MigrationParams,
+  type SQLProcessorResult,
 } from '@/core/migration.service.interface'
 
 export class CustomMigrationService extends MigrationService {
+  processUpSQL(upSQL: string): SQLProcessorResult {
+    const upSQLStatements = this.splitSQLStatements(upSQL)
+    console.log(upSQLStatements)
+    return { main: upSQLStatements }
+  }
+
+  processDownSQL(downSQL: string): SQLProcessorResult {
+    const downSQLStatements = this.splitSQLStatements(downSQL)
+    console.log(downSQLStatements)
+    return { main: downSQLStatements }
+  }
+
+  private splitSQLStatements(sql: string): string[] {
+    const statements = []
+    let currentStatement = ''
+    let insideFunction = false
+
+    // biome-ignore lint/complexity/noForEach: <explanation>
+    sql.split('\n').forEach((line) => {
+      if (line.trim().startsWith('CREATE OR REPLACE FUNCTION')) {
+        insideFunction = true
+      }
+      if (insideFunction) {
+        currentStatement += `${line}\n`
+        if (line.trim().endsWith('$$;')) {
+          insideFunction = false
+          statements.push(currentStatement.trim())
+          currentStatement = ''
+        }
+      } else {
+        if (line.trim().endsWith(';')) {
+          statements.push((currentStatement + line).trim())
+          currentStatement = ''
+        } else {
+          currentStatement += `${line}\n`
+        }
+      }
+    })
+
+    if (currentStatement.trim()) {
+      statements.push(currentStatement.trim())
+    }
+
+    return statements
+  }
+
   constructor(private readonly migrationFileGenerator: MigrationFileGenerator) {
     super()
   }
@@ -16,17 +63,17 @@ export class CustomMigrationService extends MigrationService {
       sqlContent = await this.processSQLFile(sqlFilePath)
     }
 
-    const upSQL = sqlContent?.up
-    const downSQL = sqlContent?.down
+    const upSQLStatements = sqlContent?.up
+      ? this.processUpSQL(sqlContent.up).main.join(' ')
+      : undefined
 
-    const downSQLStatements = downSQL
-      ?.split(';')
-      .filter(Boolean)
-      .map((s) => `${s.trim()};`)
+    const downSQLStatements = sqlContent?.down
+      ? this.processDownSQL(sqlContent.down).main
+      : undefined
 
     const migrationFilePathCreated =
       await this.migrationFileGenerator.generateMigrationFile({
-        customSQLStatement: upSQL,
+        customSQLStatement: upSQLStatements,
         downSQLStatements: downSQLStatements,
       })
 

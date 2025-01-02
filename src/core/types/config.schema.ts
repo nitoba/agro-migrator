@@ -1,9 +1,13 @@
 import { z } from 'zod'
 
-export const MigrationConfigSchema = z.object({
-  outputDir: z.string().min(1, {
-    message: '`outputDir` deve ser uma string válida e não pode estar vazia.',
-  }),
+export const migrationConfigSchema = z.object({
+  outputDir: z
+    .string()
+    .min(1, {
+      message: '`outputDir` deve ser uma string válida e não pode estar vazia.',
+    })
+    .optional()
+    .nullable(),
   sqlFilesDir: z
     .string()
     .min(1, {
@@ -30,4 +34,4 @@ export const MigrationConfigSchema = z.object({
   }),
 })
 
-export type MigrationConfig = z.infer<typeof MigrationConfigSchema>
+export type MigrationConfig = z.infer<typeof migrationConfigSchema>

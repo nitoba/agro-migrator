@@ -21,14 +21,29 @@ export class CreateMigrationService extends MigrationService {
     // Lê e separa as seções UP e DOWN do arquivo SQL
     const { up: upSQL, down: downSQL } = await this.processSQLFile(sqlFilePath)
 
+    const currentUpStatements = this.processUpSQL(upSQL)
+    const currentDownStatements = this.processDownSQL(`${downSQL}:up${upSQL}`)
+
+    const migrationFilePathCreated =
+      await this.migrationFileGenerator.generateMigrationFile({
+        upSQLStatements: currentUpStatements.main,
+        downSQLStatements: currentDownStatements.main,
+        auditUpSQLStatements: currentUpStatements.audit,
+        auditDownSQLStatements: currentDownStatements.audit,
+        triggersUpSQLStatements: currentUpStatements.triggers,
+        triggersDownSQLStatements: currentDownStatements.triggers,
+      })
+
+    return migrationFilePathCreated
+  }
+
+  processUpSQL(upSQL: string) {
     // Analisa o UP SQL
     const tableDefs = parseCreateTableSQL(upSQL)
 
     const allCreateMainTableSQL: string[] = []
     const allCreateAuditTableSQL: string[] = []
-    const allDropAuditTableSQL: string[] = []
     const allTriggersSQL: TriggersResult[] = []
-    const allDropTriggersSQL: TriggersResult[] = []
 
     for (const tableDef of tableDefs) {
       const createMainTableSQL = tableDef.sql
@@ -43,10 +58,41 @@ export class CreateMigrationService extends MigrationService {
       // biome-ignore lint/style/noNonNullAssertion: <explanation>
       allCreateMainTableSQL.push(createMainTableSQL!)
       allCreateAuditTableSQL.push(auditTableSQL)
+
+      allTriggersSQL.push(triggersSQL)
+    }
+
+    return {
+      main: allCreateMainTableSQL,
+      audit: allCreateAuditTableSQL,
+      triggers: allTriggersSQL,
+    }
+  }
+
+  processDownSQL(downSQL: string) {
+    const [downSql, upSQL] = downSQL.split(':up')
+
+    const tableDefs = parseCreateTableSQL(upSQL)
+
+    const allDropAuditTableSQL: string[] = []
+    const allDropTriggersSQL: TriggersResult[] = []
+
+    const downSQLStatements = downSql
+      .split(';')
+      .filter(Boolean)
+      .map((s) => `${s.trim()};`)
+
+    for (const tableDef of tableDefs) {
+      // Gera triggers
+      const triggersSQL = this.triggerManager.generateTriggersSQLFromColumns({
+        tableName: tableDef.tableName,
+        columns: tableDef.columns.map((c) => c.name),
+      })
+
+      // Drop audit tables
       allDropAuditTableSQL.push(
         `DROP TABLE IF EXISTS ad_${tableDef.tableName};`
       )
-      allTriggersSQL.push(triggersSQL)
 
       allDropTriggersSQL.push({
         insertTrigger: {
@@ -64,21 +110,10 @@ export class CreateMigrationService extends MigrationService {
       })
     }
 
-    const downSQLStatements = downSQL
-      .split(';')
-      .filter(Boolean)
-      .map((s) => `${s.trim()};`)
-
-    const migrationFilePathCreated =
-      await this.migrationFileGenerator.generateMigrationFile({
-        upSQLStatements: allCreateMainTableSQL,
-        downSQLStatements: downSQLStatements,
-        auditUpSQLStatements: allCreateAuditTableSQL,
-        auditDownSQLStatements: allDropAuditTableSQL,
-        triggersUpSQLStatements: allTriggersSQL,
-        triggersDownSQLStatements: allDropTriggersSQL,
-      })
-
-    return migrationFilePathCreated
+    return {
+      main: downSQLStatements,
+      audit: allDropAuditTableSQL,
+      triggers: allDropTriggersSQL,
+    }
   }
 }

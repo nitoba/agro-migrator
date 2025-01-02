@@ -1,12 +1,25 @@
 import path from 'node:path'
 import { parseMigrationSQL } from './parsers/parse-migration-sql'
+import type { TriggersResult } from './types'
 
 export interface MigrationParams {
   sqlFilePath?: string
 }
 
+export interface SQLProcessorResult {
+  main: string[]
+  audit?: string[]
+  triggers?: TriggersResult[]
+}
+
 export abstract class MigrationService {
   abstract generateMigration(params: MigrationParams): Promise<string>
+  abstract processUpSQL(
+    upSQL: string
+  ): Promise<SQLProcessorResult> | SQLProcessorResult
+  abstract processDownSQL(
+    downSQL: string
+  ): Promise<SQLProcessorResult> | SQLProcessorResult
 
   protected async processSQLFile(
     sqlFilePath?: string

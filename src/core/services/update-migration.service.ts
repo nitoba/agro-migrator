@@ -45,7 +45,7 @@ export class UpdateMigrationService extends MigrationService {
     })
   }
 
-  private async processUpSQL(upSQL: string): Promise<ProcessSQLResult> {
+  async processUpSQL(upSQL: string): Promise<ProcessSQLResult> {
     const alterDefs = parseAlterTableSQL(upSQL)
     const allUpSQLStatements: string[] = []
     const allUpAuditSQLStatements: string[] = []
@@ -100,7 +100,7 @@ export class UpdateMigrationService extends MigrationService {
     }
   }
 
-  private async processDownSQL(downSQL: string): Promise<ProcessSQLResult> {
+  async processDownSQL(downSQL: string): Promise<ProcessSQLResult> {
     const alterDefs = parseAlterTableSQL(downSQL)
     const allDownSQLStatements: string[] = []
     const allDownAuditSQLStatements: string[] = []

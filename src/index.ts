@@ -1,4 +1,3 @@
-import { DefaultMigrationFileBuilder } from './infra/builders/migration.builder'
 import { MigrationRunner } from './infra/cli'
 import { MigrationPrompts } from './infra/cli/migration.prompts'
 import { MigrationFactory } from './infra/factories/migration.factory'
@@ -18,12 +17,7 @@ try {
   const migrationPrompts = new MigrationPrompts(config)
   const migrationFactory = new MigrationFactory()
 
-  const runner = new MigrationRunner(
-    config,
-    migrationFactory,
-    migrationPrompts,
-    DefaultMigrationFileBuilder
-  )
+  const runner = new MigrationRunner(config, migrationFactory, migrationPrompts)
   await runner.run()
 } catch (error) {
   logger.error(error)

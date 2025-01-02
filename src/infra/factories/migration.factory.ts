@@ -3,21 +3,22 @@ import { CreateMigrationService } from '../../core/services/create-migration.ser
 import { CustomMigrationService } from '../../core/services/custom-migration.service'
 import { RoutinesMigrationService } from '../../core/services/routines.migration.service'
 import { UpdateMigrationService } from '../../core/services/update-migration.service'
-import type { MigrationFileBuilder } from '@/core/migration.builder.interface'
 import { logger } from '@/utils/logger'
 import { dbConnection } from '@/utils/db-connection'
 import { AuditTableSQLGenerator } from '@/core/generators/audit-table-generator'
 import { TriggerManager } from '@/core/generators/triggers-generator'
 import { MigrationFileGenerator } from '@/core/generators/migration-file-generator'
 import { MigrationType } from '@/core/types/migration.types'
+import { DefaultMigrationFileBuilder } from '../builders/migration.builder'
 
 export class MigrationFactory {
   getMigrationService(
     migrationType: MigrationType,
-    fileBuilderFactory: () => MigrationFileBuilder
+    migrationName: string,
+    outputDir: string
   ): MigrationService {
     const migrationFileGenerator = new MigrationFileGenerator(
-      fileBuilderFactory()
+      new DefaultMigrationFileBuilder({ migrationName, outputDir })
     )
     switch (migrationType) {
       case MigrationType.CREATE:

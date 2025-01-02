@@ -1,5 +1,5 @@
 import {
-  MigrationConfigSchema,
+  migrationConfigSchema,
   type MigrationConfig,
 } from '@/core/types/config.schema'
 import path from 'node:path'
@@ -29,7 +29,7 @@ export async function loadConfig(): Promise<MigrationConfig> {
 }
 function validateConfig(config: unknown): MigrationConfig {
   try {
-    return MigrationConfigSchema.parse(config)
+    return migrationConfigSchema.parse(config)
   } catch (error) {
     if (error instanceof ZodError) {
       const errorMessages = error.errors.map((err) => ({

@@ -85,9 +85,12 @@ export class MigrationPrompts {
         migrationName: () =>
           text({
             message: 'Qual o nome da migration?',
+            // TODO: Adicionar um placeholder baseado no tipo de migration
             placeholder: 'create_users_table',
+            // TODO: Adicionar um default value baseado no tipo de migration
             defaultValue: `Create${Date.now()}${Math.floor(Math.random() * 1000)}`,
             validate: (value) => {
+              // TODO: Usar o zod para validar o nome da migration
               if (value.length === 0) {
                 return 'O nome da migration não pode ser vazio'
               }
@@ -124,11 +127,11 @@ export class MigrationPrompts {
               const options = await this.readAllSQLFilesFromFolder()
 
               if (!options) {
-                return null
+                return cancel('Não há arquivos SQL na pasta configurada')
               }
 
               const sqlFilePath = await select({
-                message: 'Selecione um arquivo SQL',
+                message: 'Selecione um arquivo SQL para a migration',
                 options: options,
               })
 
