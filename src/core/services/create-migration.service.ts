@@ -3,16 +3,16 @@ import {
   type MigrationParams,
 } from '@/core/migration.service.interface'
 import { parseCreateTableSQL } from '@/core/parsers/create-table-parser'
-import { generateAuditTableSQL } from '@/core/generators/audit-table-create-generator'
 import type { TriggerManager } from '@/core/generators/triggers-generator'
-import { generateMigrationFile } from '@/core/generators/migration-file-generator'
-import type { MigrationFileBuilder } from '../migration.builder.interface'
+import type { MigrationFileGenerator } from '@/core/generators/migration-file-generator'
 import type { TriggersResult } from '../types'
+import type { AuditTableSQLGenerator } from '../generators/audit-table-generator'
 
 export class CreateMigrationService extends MigrationService {
   constructor(
-    private readonly migrationBuilder: MigrationFileBuilder,
-    private readonly triggerManager: TriggerManager
+    private readonly migrationFileGenerator: MigrationFileGenerator,
+    private readonly triggerManager: TriggerManager,
+    private readonly auditTableGenerator: AuditTableSQLGenerator
   ) {
     super()
   }
@@ -33,7 +33,8 @@ export class CreateMigrationService extends MigrationService {
     for (const tableDef of tableDefs) {
       const createMainTableSQL = tableDef.sql
       // Gera tabela de auditoria
-      const auditTableSQL = generateAuditTableSQL(tableDef)
+      const auditTableSQL =
+        this.auditTableGenerator.generateAuditTableSQL(tableDef)
       // Gera triggers
       const triggersSQL = this.triggerManager.generateTriggersSQLFromColumns({
         tableName: tableDef.tableName,
@@ -68,17 +69,15 @@ export class CreateMigrationService extends MigrationService {
       .filter(Boolean)
       .map((s) => `${s.trim()};`)
 
-    const migrationFilePathCreated = await generateMigrationFile(
-      {
+    const migrationFilePathCreated =
+      await this.migrationFileGenerator.generateMigrationFile({
         upSQLStatements: allCreateMainTableSQL,
         downSQLStatements: downSQLStatements,
         auditUpSQLStatements: allCreateAuditTableSQL,
         auditDownSQLStatements: allDropAuditTableSQL,
         triggersUpSQLStatements: allTriggersSQL,
         triggersDownSQLStatements: allDropTriggersSQL,
-      },
-      this.migrationBuilder
-    )
+      })
 
     return migrationFilePathCreated
   }

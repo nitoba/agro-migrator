@@ -6,31 +6,37 @@ import { UpdateMigrationService } from '../../core/services/update-migration.ser
 import type { MigrationFileBuilder } from '@/core/migration.builder.interface'
 import { logger } from '@/utils/logger'
 import { dbConnection } from '@/utils/db-connection'
-import { AuditSQLGenerator } from '@/core/generators/audit-table-alter-generator'
+import { AuditTableSQLGenerator } from '@/core/generators/audit-table-generator'
 import { TriggerManager } from '@/core/generators/triggers-generator'
+import { MigrationFileGenerator } from '@/core/generators/migration-file-generator'
+import { MigrationType } from '@/core/types/migration.types'
 
 export class MigrationFactory {
   getMigrationService(
-    migrationType: string,
+    migrationType: MigrationType,
     fileBuilderFactory: () => MigrationFileBuilder
   ): MigrationService {
+    const migrationFileGenerator = new MigrationFileGenerator(
+      fileBuilderFactory()
+    )
     switch (migrationType) {
-      case 'create':
+      case MigrationType.CREATE:
         return new CreateMigrationService(
-          fileBuilderFactory(),
-          new TriggerManager(dbConnection)
+          migrationFileGenerator,
+          new TriggerManager(dbConnection),
+          new AuditTableSQLGenerator()
         )
-      case 'update':
+      case MigrationType.UPDATE:
         return new UpdateMigrationService(
-          fileBuilderFactory(),
+          migrationFileGenerator,
           dbConnection,
-          new AuditSQLGenerator(),
+          new AuditTableSQLGenerator(),
           new TriggerManager(dbConnection)
         )
-      case 'routine':
-        return new RoutinesMigrationService(fileBuilderFactory())
-      case 'custom':
-        return new CustomMigrationService(fileBuilderFactory())
+      case MigrationType.ROUTINE:
+        return new RoutinesMigrationService(migrationFileGenerator)
+      case MigrationType.CUSTOM:
+        return new CustomMigrationService(migrationFileGenerator)
       default:
         logger.error(`Tipo de migração desconhecido: ${migrationType}`)
         throw new Error(`Tipo de migração desconhecido: ${migrationType}`)

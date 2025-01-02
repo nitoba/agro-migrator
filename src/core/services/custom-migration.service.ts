@@ -1,12 +1,11 @@
-import { generateMigrationFile } from '@/core/generators/migration-file-generator'
+import type { MigrationFileGenerator } from '@/core/generators/migration-file-generator'
 import {
   MigrationService,
   type MigrationParams,
 } from '@/core/migration.service.interface'
-import type { MigrationFileBuilder } from '../migration.builder.interface'
 
 export class CustomMigrationService extends MigrationService {
-  constructor(private readonly migrationBuilder: MigrationFileBuilder) {
+  constructor(private readonly migrationFileGenerator: MigrationFileGenerator) {
     super()
   }
 
@@ -25,13 +24,11 @@ export class CustomMigrationService extends MigrationService {
       .filter(Boolean)
       .map((s) => `${s.trim()};`)
 
-    const migrationFilePathCreated = await generateMigrationFile(
-      {
+    const migrationFilePathCreated =
+      await this.migrationFileGenerator.generateMigrationFile({
         customSQLStatement: upSQL,
         downSQLStatements: downSQLStatements,
-      },
-      this.migrationBuilder
-    )
+      })
 
     return migrationFilePathCreated
   }

@@ -15,7 +15,6 @@ const consoleFormat = printf(({ level, message, label, timestamp }) => {
       message = chalk.yellow(message)
       level = chalk.black.bgYellowBright.bold(levelUpper)
       break
-
     case 'ERROR':
       message = chalk.red(message)
       level = chalk.black.bgRedBright.bold(levelUpper)

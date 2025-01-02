@@ -1,14 +1,13 @@
 import { parseAlterTableSQL } from '@/core/parsers/alter-table-parser'
 import type { TriggerManager } from '@/core/generators/triggers-generator'
-import { generateMigrationFile } from '@/core/generators/migration-file-generator'
+import type { MigrationFileGenerator } from '@/core/generators/migration-file-generator'
 import type { AlterTableDefinition, TriggersResult } from '@/core/types'
 import type { Connection } from 'mysql2/promise'
 import {
   MigrationService,
   type MigrationParams,
 } from '../migration.service.interface'
-import type { MigrationFileBuilder } from '../migration.builder.interface'
-import type { AuditSQLGenerator } from '../generators/audit-table-alter-generator'
+import type { AuditTableSQLGenerator } from '../generators/audit-table-generator'
 
 type ProcessSQLResult = {
   main: string[]
@@ -18,9 +17,9 @@ type ProcessSQLResult = {
 
 export class UpdateMigrationService extends MigrationService {
   constructor(
-    private readonly migrationBuilder: MigrationFileBuilder,
+    private readonly migrationFileGenerator: MigrationFileGenerator,
     private readonly dbConnection: Connection,
-    private readonly auditTableSQLGenerator: AuditSQLGenerator,
+    private readonly auditTableSQLGenerator: AuditTableSQLGenerator,
     private triggerManager: TriggerManager
   ) {
     super()
@@ -36,17 +35,14 @@ export class UpdateMigrationService extends MigrationService {
     const currentUpStatements = await this.processUpSQL(upSQL)
     const currentDownStatements = await this.processDownSQL(downSQL)
 
-    return generateMigrationFile(
-      {
-        upSQLStatements: currentUpStatements?.main,
-        downSQLStatements: currentDownStatements?.main,
-        auditUpSQLStatements: currentUpStatements?.audit,
-        auditDownSQLStatements: currentDownStatements?.audit,
-        triggersUpSQLStatements: currentUpStatements?.triggers,
-        triggersDownSQLStatements: currentDownStatements?.triggers,
-      },
-      this.migrationBuilder
-    )
+    return this.migrationFileGenerator.generateMigrationFile({
+      upSQLStatements: currentUpStatements?.main,
+      downSQLStatements: currentDownStatements?.main,
+      auditUpSQLStatements: currentUpStatements?.audit,
+      auditDownSQLStatements: currentDownStatements?.audit,
+      triggersUpSQLStatements: currentUpStatements?.triggers,
+      triggersDownSQLStatements: currentDownStatements?.triggers,
+    })
   }
 
   private async processUpSQL(upSQL: string): Promise<ProcessSQLResult> {
