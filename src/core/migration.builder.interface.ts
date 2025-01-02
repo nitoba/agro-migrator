@@ -16,7 +16,7 @@ export abstract class MigrationFileBuilder {
 
   constructor({ migrationName, outputDir }: MigrationFileBuilderArgs) {
     this.timestamp = Date.now()
-    this.migrationName = migrationName
+    this.migrationName = migrationName.trim()
     this.outputDir = outputDir
     this.className = this.generateClassName(migrationName)
     this.upStatements = []
