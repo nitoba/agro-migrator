@@ -1,5 +1,6 @@
 import path from 'node:path'
 import type { CreateRoutineDefinition, TriggersResult } from './types'
+import { createSlug } from '@/utils/create-slug'
 
 export type MigrationFileBuilderArgs = {
   migrationName: string
@@ -17,8 +18,9 @@ export abstract class MigrationFileBuilder {
   constructor({ migrationName, outputDir }: MigrationFileBuilderArgs) {
     this.timestamp = Date.now()
     this.migrationName = migrationName.trim()
+    this.migrationName = createSlug(migrationName)
     this.outputDir = outputDir
-    this.className = this.generateClassName(migrationName)
+    this.className = this.generateClassName(this.migrationName)
     this.upStatements = []
   }
 
