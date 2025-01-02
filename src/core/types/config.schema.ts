@@ -4,6 +4,14 @@ export const MigrationConfigSchema = z.object({
   outputDir: z.string().min(1, {
     message: '`outputDir` deve ser uma string válida e não pode estar vazia.',
   }),
+  sqlFilesDir: z
+    .string()
+    .min(1, {
+      message:
+        '`sqlFilesDir` deve ser uma string válida e não pode estar vazia.',
+    })
+    .optional()
+    .nullable(),
   dbConnection: z.object({
     host: z.string().min(1, { message: '`host` deve ser uma string válida.' }),
     port: z

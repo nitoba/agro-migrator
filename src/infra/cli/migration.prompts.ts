@@ -1,9 +1,20 @@
 import type { MigrationConfig } from '@/core/types/config.schema'
+import type { MigrationType } from '@/core/types/migration.types'
 import { logger } from '@/utils/logger'
-import { group, select, text, isCancel, cancel, confirm } from '@clack/prompts'
+import {
+  group,
+  select,
+  text,
+  isCancel,
+  cancel,
+  confirm,
+  type SelectOptions,
+} from '@clack/prompts'
+import { readdir } from 'node:fs/promises'
+import { join } from 'node:path'
 
 export interface MigrationInfo {
-  migrationType: string
+  migrationType: MigrationType
   migrationName: string
   outputDir: string
   sqlFile: string
@@ -11,6 +22,36 @@ export interface MigrationInfo {
 
 export class MigrationPrompts {
   constructor(private readonly config: MigrationConfig) {}
+
+  async readAllSQLFilesFromFolder(): Promise<
+    SelectOptions<string>['options'] | null
+  > {
+    {
+      const sqlFilesDir = this.config.sqlFilesDir
+
+      if (!sqlFilesDir) {
+        logger.error(
+          'Nenhuma pasta de arquivos SQL foi configurada! por favor, configure uma pasta de arquivos SQL no arquivo de configuração.'
+        )
+        process.exit(1)
+      }
+
+      const filesFromDir = await readdir(sqlFilesDir)
+
+      if (filesFromDir.length === 0) {
+        logger.warn(`Nenhum arquivo SQL encontrado na pasta ${sqlFilesDir}`)
+        return null
+      }
+
+      return filesFromDir.map((file) => {
+        return {
+          value: join(sqlFilesDir, file),
+          label: file,
+          hint: `Arquivo SQL: ${file}`,
+        } satisfies SelectOptions<string>['options'][number]
+      })
+    }
+  }
 
   async collectMigrationInfo(): Promise<MigrationInfo> {
     const migrationInfo = await group(
@@ -79,6 +120,27 @@ export class MigrationPrompts {
           }
 
           if (withSQLFile) {
+            if (this.config.sqlFilesDir) {
+              const options = await this.readAllSQLFilesFromFolder()
+
+              if (!options) {
+                return null
+              }
+
+              const sqlFilePath = await select({
+                message: 'Selecione um arquivo SQL',
+                options: options,
+              })
+
+              if (isCancel(sqlFilePath)) {
+                cancel('Tudo bem então, Tchau!')
+                logger.warn('Criação de migration cancelada!')
+                process.exit(0)
+              }
+
+              return sqlFilePath
+            }
+
             const currentSqlMigrationFile = await text({
               message: 'Qual caminho do arquivo SQL?',
               placeholder:
