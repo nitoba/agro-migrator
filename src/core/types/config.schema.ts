@@ -34,4 +34,6 @@ export const migrationConfigSchema = z.object({
   }),
 })
 
+export const MigrationConfig = Symbol('MigrationConfig')
+
 export type MigrationConfig = z.infer<typeof migrationConfigSchema>

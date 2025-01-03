@@ -1,12 +1,13 @@
-import { createConnection, type Connection } from 'mysql2/promise'
+import { createConnection } from 'mysql2/promise'
 import type { MigrationConfig } from '@/core/types/config.schema'
 import { logger } from './logger'
 
-export let dbConnection: Connection
+export const DB_CONNECTION = Symbol('dbConnection')
 
 export const createConnectionWithConfig = async (
   config: MigrationConfig['dbConnection']
 ) => {
+  let dbConnection: Awaited<ReturnType<typeof createConnection>> | null = null
   try {
     if (!dbConnection) {
       dbConnection = await createConnection({
@@ -17,6 +18,8 @@ export const createConnectionWithConfig = async (
         port: config?.port,
       })
     }
+
+    return dbConnection
   } catch (error) {
     logger.error(
       'Erro ao conectar ao banco de dados. Verifique as credenciais.'

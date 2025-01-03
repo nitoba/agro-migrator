@@ -1,4 +1,5 @@
-import type { MigrationFileBuilder } from '../migration.builder.interface'
+import { injectable } from 'inversify'
+import { MigrationFileBuilder } from '../migration.builder.interface'
 import type { CreateRoutineDefinition, TriggersResult } from '../types'
 
 interface GenerateMigrationFileOptions {
@@ -13,6 +14,7 @@ interface GenerateMigrationFileOptions {
   rawSQLStatement?: string
 }
 
+@injectable()
 export class MigrationFileGeneratorService {
   constructor(private readonly builder: MigrationFileBuilder) {}
 

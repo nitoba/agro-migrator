@@ -1,4 +1,5 @@
-import type { IRepository } from '../repositories/repository'
+import { injectable } from 'inversify'
+import { IRepository } from '../repositories/repository'
 import type { TriggersResult } from '../types'
 
 type TriggerDBResult = {
@@ -10,6 +11,7 @@ type TriggerDBResult = {
   Created: string
 }
 
+@injectable()
 export class TriggersManagerService {
   constructor(private readonly databaseRepository: IRepository) {}
 

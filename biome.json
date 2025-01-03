@@ -24,6 +24,9 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "style": {
+        "useImportType": "off"
+      },
       "complexity": {
         "noThisInStatic": "off",
         "noStaticOnlyClass": "off",

@@ -1,5 +1,5 @@
-import type { MigrationConfig } from '@/core/types/config.schema'
-import type { MigrationType } from '@/core/types/migration.types'
+import { MigrationConfig } from '@/core/types/config.schema'
+import type { MigrationTypes } from '@/core/types/migration.types'
 import { logger } from '@/utils/logger'
 import {
   group,
@@ -10,18 +10,23 @@ import {
   confirm,
   type SelectOptions,
 } from '@clack/prompts'
+import { inject, injectable } from 'inversify'
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 
 export interface MigrationInfo {
-  migrationType: MigrationType
+  migrationType: keyof typeof MigrationTypes
   migrationName: string
   outputDir: string
   sqlFile: string
 }
 
+@injectable()
 export class MigrationPrompts {
-  constructor(private readonly config: MigrationConfig) {}
+  constructor(
+    @inject(MigrationConfig)
+    private readonly config: MigrationConfig
+  ) {}
 
   async readAllSQLFilesFromFolder(): Promise<
     SelectOptions<string>['options'] | null
@@ -61,22 +66,22 @@ export class MigrationPrompts {
             message: 'Qual tipo de migração você deseja criar?',
             options: [
               {
-                value: 'create',
+                value: 'CREATE',
                 label: 'Criar tabelas',
                 hint: 'Criação de tabelas',
               },
               {
-                value: 'update',
+                value: 'UPDATE',
                 label: 'Atualizar tabelas',
                 hint: 'Atualização de tabelas',
               },
               {
-                value: 'routine',
+                value: 'ROUTINE',
                 label: 'Routine',
                 hint: 'Criação de procedures e funções',
               },
               {
-                value: 'custom',
+                value: 'CUSTOM',
                 label: 'Criação customizada',
                 hint: 'Criação de tabelas, triggers e procedures e tudo mais que você quiser',
               },
@@ -108,7 +113,7 @@ export class MigrationPrompts {
           let withSQLFile = true
           let sqlFile: string | undefined
 
-          if (results.migrationType === 'custom') {
+          if (results.migrationType === 'CUSTOM') {
             const shouldProvideASqlFile = await confirm({
               message: 'Você deseja fornecer um arquivo SQL?',
             })
@@ -147,9 +152,9 @@ export class MigrationPrompts {
             const currentSqlMigrationFile = await text({
               message: 'Qual caminho do arquivo SQL?',
               placeholder:
-                results.migrationType === 'create'
+                results.migrationType === 'CREATE'
                   ? 'create_users_table.sql'
-                  : results.migrationType === 'update'
+                  : results.migrationType === 'UPDATE'
                     ? 'alter_users_table.sql'
                     : 'custom_migration.sql',
               validate: (value) => {

@@ -1,16 +1,20 @@
 import { logoWithGradient } from '@/utils/logo'
 import { intro, confirm, isCancel, cancel, spinner, log } from '@clack/prompts'
-import type { MigrationInfo, MigrationPrompts } from './migration.prompts'
-import type { MigrationFactory } from '@/infra/factories/migration.factory'
-import type { MigrationConfig } from '@/core/types/config.schema'
+import { type MigrationInfo, MigrationPrompts } from './migration.prompts'
+import { MigrationConfig } from '@/core/types/config.schema'
 import { logger } from '@/utils/logger'
 import chalk from 'chalk'
+import { inject, injectable } from 'inversify'
+import { container } from '../container'
+import { MigrationFileBuilder } from '@/core/migration.builder.interface'
+import type { MigrationService } from '@/core/migration.service.interface'
 
+@injectable()
 export class MigrationRunner {
   constructor(
-    private readonly config: MigrationConfig,
-    private readonly migrationFactory: MigrationFactory,
-    private readonly migrationPrompts: MigrationPrompts
+    private readonly migrationPrompts: MigrationPrompts,
+    @inject(MigrationConfig)
+    private readonly config: MigrationConfig
   ) {}
 
   private async initialize(): Promise<void> {
@@ -41,14 +45,18 @@ export class MigrationRunner {
     s.start('Migration create')
     s.message('Criando migration...')
 
-    // Lazy creation of DefaultMigrationFileBuilder
-    const useCase = this.migrationFactory.getMigrationCreator(
-      migrationType,
-      migrationName,
-      finalOutputDir
-    )
+    const migrationService = container.get<MigrationService>(migrationType)
 
-    const migrationFilePath = await useCase.execute(sqlFile)
+    const builder = container.get<MigrationFileBuilder>(MigrationFileBuilder)
+
+    builder.collectRequiredInformation({
+      migrationName,
+      outputDir: finalOutputDir,
+    })
+
+    const migrationFilePath = await migrationService.generateMigration({
+      sqlFilePath: sqlFile,
+    })
 
     s.stop('Migration create')
     log.success(

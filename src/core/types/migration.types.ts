@@ -1,6 +1,6 @@
-export enum MigrationType {
-  CREATE = 'create',
-  UPDATE = 'update',
-  ROUTINE = 'routine',
-  CUSTOM = 'custom',
-}
+export const MigrationTypes = {
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  ROUTINE: 'ROUTINE',
+  CUSTOM: 'CUSTOM',
+} as const

@@ -8,15 +8,17 @@ export type MigrationFileBuilderArgs = {
 }
 
 export abstract class MigrationFileBuilder {
-  protected migrationName: string
-  protected outputDir: string
-  protected className: string
+  protected migrationName = ''
+  protected outputDir = ''
+  protected className = ''
   protected upStatements: string[] = []
   protected downStatements: string[] = []
-  private timestamp: number
+  private timestamp: number = Date.now()
 
-  constructor({ migrationName, outputDir }: MigrationFileBuilderArgs) {
-    this.timestamp = Date.now()
+  collectRequiredInformation({
+    migrationName,
+    outputDir,
+  }: MigrationFileBuilderArgs) {
     this.migrationName = createSlug(migrationName)
     this.outputDir = outputDir
     this.className = this.generateClassName(this.migrationName)

@@ -1,6 +1,6 @@
-export interface IRepository {
-  getColumnsForTable(tableName: string): Promise<string[]>
-  getTriggersForTable(tableName: string): Promise<TriggerDBResult[]>
+export abstract class IRepository {
+  abstract getColumnsForTable(tableName: string): Promise<string[]>
+  abstract getTriggersForTable(tableName: string): Promise<TriggerDBResult[]>
 }
 
 export type TriggerDBResult = {

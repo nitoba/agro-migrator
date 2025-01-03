@@ -3,11 +3,13 @@ import {
   type MigrationParams,
 } from '@/core/migration.service.interface'
 import { parseCreateTableSQL } from '@/core/parsers/create-table-parser'
-import type { TriggersManagerService } from '@/core/services/triggers-manager.service'
-import type { MigrationFileGeneratorService } from '@/core/services/migration-file-generator.service'
+import { TriggersManagerService } from '@/core/services/triggers-manager.service'
+import { MigrationFileGeneratorService } from '@/core/services/migration-file-generator.service'
 import type { TriggersResult } from '../types'
-import type { AuditTableSQLGeneratorService } from './audit-table-generator.service'
+import { AuditTableSQLGeneratorService } from './audit-table-generator.service'
+import { injectable } from 'inversify'
 
+@injectable()
 export class CreateTableMigrationService extends MigrationService {
   constructor(
     private readonly migrationFileGenerator: MigrationFileGeneratorService,

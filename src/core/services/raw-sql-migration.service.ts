@@ -4,7 +4,9 @@ import {
   type MigrationParams,
   type SQLProcessorResult,
 } from '@/core/migration.service.interface'
+import { injectable } from 'inversify'
 
+@injectable()
 export class RawSQLMigrationService extends MigrationService {
   processUpSQL(upSQL: string): SQLProcessorResult {
     const upSQLStatements = this.splitSQLStatements(upSQL)

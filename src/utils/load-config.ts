@@ -5,6 +5,7 @@ import {
 import path from 'node:path'
 import { ZodError } from 'zod'
 
+// TODO: add support for multiple config files and flag to specify which one to use
 const DEFAULT_CONFIG_PATH = path.resolve('migration.config.ts')
 
 export async function loadConfig(): Promise<MigrationConfig> {

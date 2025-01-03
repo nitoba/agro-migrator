@@ -3,9 +3,15 @@ import type {
   IRepository,
   TriggerDBResult,
 } from '../../core/repositories/repository'
+import { inject, injectable } from 'inversify'
+import { DB_CONNECTION } from '@/utils/db-connection'
 
+@injectable()
 export class DatabaseRepository implements IRepository {
-  constructor(private readonly dbConnection: Connection) {}
+  constructor(
+    @inject(DB_CONNECTION)
+    private readonly dbConnection: Connection
+  ) {}
 
   async getColumnsForTable(tableName: string): Promise<string[]> {
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>

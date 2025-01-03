@@ -1,6 +1,8 @@
 import { logger } from '@/utils/logger'
 import type { AlterTableDefinition, TableDefinition } from '../types'
+import { injectable } from 'inversify'
 
+@injectable()
 export class AuditTableSQLGeneratorService {
   private readonly ignoredPatterns = [
     /CONSTRAINT/i,

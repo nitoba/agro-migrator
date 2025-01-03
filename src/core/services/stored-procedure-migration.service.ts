@@ -6,7 +6,9 @@ import {
 } from '@/core/migration.service.interface'
 import { parseCreateRoutineSQL } from '../parsers/routine-parser'
 import { logger } from '@/utils/logger'
+import { injectable } from 'inversify'
 
+@injectable()
 export class StoredProcedureMigrationService extends MigrationService {
   processUpSQL(upSQL: string): SQLProcessorResult {
     return {

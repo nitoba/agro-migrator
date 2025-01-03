@@ -4,7 +4,9 @@ import type {
   TriggersResult,
 } from '@/core/types'
 import { MigrationFileBuilder } from '../../core/migration.builder.interface'
+import { injectable } from 'inversify'
 
+@injectable()
 export class DefaultMigrationFileBuilder extends MigrationFileBuilder {
   private addStatements(
     statements: string[] | undefined,

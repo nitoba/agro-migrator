@@ -8,6 +8,7 @@ import {
 } from '../migration.service.interface'
 import type { AuditTableSQLGeneratorService } from './audit-table-generator.service'
 import type { IRepository } from '../repositories/repository'
+import { injectable } from 'inversify'
 
 type ProcessSQLResult = {
   main: string[]
@@ -15,6 +16,7 @@ type ProcessSQLResult = {
   triggers: TriggersResult[]
 }
 
+@injectable()
 export class AlterTableMigrationService extends MigrationService {
   constructor(
     private readonly migrationFileGenerator: MigrationFileGeneratorService,
