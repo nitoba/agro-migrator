@@ -3,16 +3,16 @@ import {
   type MigrationParams,
 } from '@/core/migration.service.interface'
 import { parseCreateTableSQL } from '@/core/parsers/create-table-parser'
-import type { TriggerManager } from '@/core/generators/triggers-generator'
-import type { MigrationFileGenerator } from '@/core/generators/migration-file-generator'
+import type { TriggersManagerService } from '@/core/services/triggers-manager.service'
+import type { MigrationFileGeneratorService } from '@/core/services/migration-file-generator.service'
 import type { TriggersResult } from '../types'
-import type { AuditTableSQLGenerator } from '../generators/audit-table-generator'
+import type { AuditTableSQLGeneratorService } from './audit-table-generator.service'
 
-export class CreateMigrationService extends MigrationService {
+export class CreateTableMigrationService extends MigrationService {
   constructor(
-    private readonly migrationFileGenerator: MigrationFileGenerator,
-    private readonly triggerManager: TriggerManager,
-    private readonly auditTableGenerator: AuditTableSQLGenerator
+    private readonly migrationFileGenerator: MigrationFileGeneratorService,
+    private readonly triggersManager: TriggersManagerService,
+    private readonly auditTableGenerator: AuditTableSQLGeneratorService
   ) {
     super()
   }
@@ -37,7 +37,7 @@ export class CreateMigrationService extends MigrationService {
     return migrationFilePathCreated
   }
 
-  processUpSQL(upSQL: string) {
+  protected processUpSQL(upSQL: string) {
     // Analisa o UP SQL
     const tableDefs = parseCreateTableSQL(upSQL)
 
@@ -51,7 +51,7 @@ export class CreateMigrationService extends MigrationService {
       const auditTableSQL =
         this.auditTableGenerator.generateAuditTableSQL(tableDef)
       // Gera triggers
-      const triggersSQL = this.triggerManager.generateTriggersSQLFromColumns({
+      const triggersSQL = this.triggersManager.generateTriggersSQLFromColumns({
         tableName: tableDef.tableName,
         columns: tableDef.columns.map((c) => c.name),
       })
@@ -69,7 +69,7 @@ export class CreateMigrationService extends MigrationService {
     }
   }
 
-  processDownSQL(downSQL: string) {
+  protected processDownSQL(downSQL: string) {
     const [downSql, upSQL] = downSQL.split(':up')
 
     const tableDefs = parseCreateTableSQL(upSQL)
@@ -84,7 +84,7 @@ export class CreateMigrationService extends MigrationService {
 
     for (const tableDef of tableDefs) {
       // Gera triggers
-      const triggersSQL = this.triggerManager.generateTriggersSQLFromColumns({
+      const triggersSQL = this.triggersManager.generateTriggersSQLFromColumns({
         tableName: tableDef.tableName,
         columns: tableDef.columns.map((c) => c.name),
       })

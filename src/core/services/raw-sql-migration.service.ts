@@ -1,11 +1,11 @@
-import type { MigrationFileGenerator } from '@/core/generators/migration-file-generator'
+import type { MigrationFileGeneratorService } from '@/core/services/migration-file-generator.service'
 import {
   MigrationService,
   type MigrationParams,
   type SQLProcessorResult,
 } from '@/core/migration.service.interface'
 
-export class CustomMigrationService extends MigrationService {
+export class RawSQLMigrationService extends MigrationService {
   processUpSQL(upSQL: string): SQLProcessorResult {
     const upSQLStatements = this.splitSQLStatements(upSQL)
     console.log(upSQLStatements)
@@ -52,7 +52,9 @@ export class CustomMigrationService extends MigrationService {
     return statements
   }
 
-  constructor(private readonly migrationFileGenerator: MigrationFileGenerator) {
+  constructor(
+    private readonly migrationFileGenerator: MigrationFileGeneratorService
+  ) {
     super()
   }
 

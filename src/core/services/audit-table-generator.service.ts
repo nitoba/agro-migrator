@@ -1,7 +1,7 @@
 import { logger } from '@/utils/logger'
 import type { AlterTableDefinition, TableDefinition } from '../types'
 
-export class AuditTableSQLGenerator {
+export class AuditTableSQLGeneratorService {
   private readonly ignoredPatterns = [
     /CONSTRAINT/i,
     /FOREIGN KEY/i,

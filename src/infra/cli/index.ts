@@ -42,15 +42,13 @@ export class MigrationRunner {
     s.message('Criando migration...')
 
     // Lazy creation of DefaultMigrationFileBuilder
-    const migrationService = this.migrationFactory.getMigrationService(
+    const useCase = this.migrationFactory.getMigrationCreator(
       migrationType,
       migrationName,
       finalOutputDir
     )
 
-    const migrationFilePath = await migrationService.generateMigration({
-      sqlFilePath: sqlFile,
-    })
+    const migrationFilePath = await useCase.execute(sqlFile)
 
     s.stop('Migration create')
     log.success(

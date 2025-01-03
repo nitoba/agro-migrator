@@ -1,4 +1,4 @@
-import type { MigrationFileGenerator } from '@/core/generators/migration-file-generator'
+import type { MigrationFileGeneratorService } from '@/core/services/migration-file-generator.service'
 import {
   MigrationService,
   type MigrationParams,
@@ -7,7 +7,7 @@ import {
 import { parseCreateRoutineSQL } from '../parsers/routine-parser'
 import { logger } from '@/utils/logger'
 
-export class RoutinesMigrationService extends MigrationService {
+export class StoredProcedureMigrationService extends MigrationService {
   processUpSQL(upSQL: string): SQLProcessorResult {
     return {
       main: [upSQL],
@@ -24,7 +24,9 @@ export class RoutinesMigrationService extends MigrationService {
       main: downSQLStatements,
     }
   }
-  constructor(private readonly migrationFileGenerator: MigrationFileGenerator) {
+  constructor(
+    private readonly migrationFileGenerator: MigrationFileGeneratorService
+  ) {
     super()
   }
 

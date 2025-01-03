@@ -13,7 +13,7 @@ interface GenerateMigrationFileOptions {
   customSQLStatement?: string
 }
 
-export class MigrationFileGenerator {
+export class MigrationFileGeneratorService {
   constructor(private readonly builder: MigrationFileBuilder) {}
 
   async generateMigrationFile(

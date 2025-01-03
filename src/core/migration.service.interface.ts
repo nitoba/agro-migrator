@@ -14,10 +14,10 @@ export interface SQLProcessorResult {
 
 export abstract class MigrationService {
   abstract generateMigration(params: MigrationParams): Promise<string>
-  abstract processUpSQL(
+  protected abstract processUpSQL(
     upSQL: string
   ): Promise<SQLProcessorResult> | SQLProcessorResult
-  abstract processDownSQL(
+  protected abstract processDownSQL(
     downSQL: string
   ): Promise<SQLProcessorResult> | SQLProcessorResult
 

@@ -1,4 +1,4 @@
-import type { Connection } from 'mysql2/promise'
+import type { IRepository } from '../repositories/repository'
 import type { TriggersResult } from '../types'
 
 type TriggerDBResult = {
@@ -10,15 +10,12 @@ type TriggerDBResult = {
   Created: string
 }
 
-export class TriggerManager {
-  constructor(private readonly dbConnection: Connection) {}
+export class TriggersManagerService {
+  constructor(private readonly databaseRepository: IRepository) {}
 
   async getTriggersForTable(tableName: string): Promise<TriggersResult> {
-    const [triggersSQL] = await this.dbConnection.query<
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-      [TriggerDBResult[], any]
-    >(`SHOW TRIGGERS LIKE '${tableName}'`)
-
+    const triggersSQL =
+      await this.databaseRepository.getTriggersForTable(tableName)
     return this.parseTriggersFromResult(triggersSQL)
   }
 

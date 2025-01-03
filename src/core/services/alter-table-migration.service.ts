@@ -1,13 +1,13 @@
 import { parseAlterTableSQL } from '@/core/parsers/alter-table-parser'
-import type { TriggerManager } from '@/core/generators/triggers-generator'
-import type { MigrationFileGenerator } from '@/core/generators/migration-file-generator'
+import type { TriggersManagerService } from '@/core/services/triggers-manager.service'
+import type { MigrationFileGeneratorService } from '@/core/services/migration-file-generator.service'
 import type { AlterTableDefinition, TriggersResult } from '@/core/types'
-import type { Connection } from 'mysql2/promise'
 import {
   MigrationService,
   type MigrationParams,
 } from '../migration.service.interface'
-import type { AuditTableSQLGenerator } from '../generators/audit-table-generator'
+import type { AuditTableSQLGeneratorService } from './audit-table-generator.service'
+import type { IRepository } from '../repositories/repository'
 
 type ProcessSQLResult = {
   main: string[]
@@ -15,18 +15,14 @@ type ProcessSQLResult = {
   triggers: TriggersResult[]
 }
 
-export class UpdateMigrationService extends MigrationService {
+export class AlterTableMigrationService extends MigrationService {
   constructor(
-    private readonly migrationFileGenerator: MigrationFileGenerator,
-    private readonly dbConnection: Connection,
-    private readonly auditTableSQLGenerator: AuditTableSQLGenerator,
-    private triggerManager: TriggerManager
+    private readonly migrationFileGenerator: MigrationFileGeneratorService,
+    private readonly databaseRepository: IRepository,
+    private readonly auditTableSQLGenerator: AuditTableSQLGeneratorService,
+    private triggersManager: TriggersManagerService
   ) {
     super()
-
-    if (!this.dbConnection) {
-      throw new Error('Conexão com o banco de dados não inicializada.')
-    }
   }
 
   async generateMigration({ sqlFilePath }: MigrationParams): Promise<string> {
@@ -63,7 +59,8 @@ export class UpdateMigrationService extends MigrationService {
     }
 
     for (const [tableName, tableAlterDefs] of tableAlterations.entries()) {
-      let currentColumns = await this.getUpdatedColumnsForTable(tableName)
+      let currentColumns =
+        await this.databaseRepository.getColumnsForTable(tableName)
       for (const alterDef of tableAlterDefs) {
         currentColumns = this.updateColumns(alterDef, currentColumns)
         allUpSQLStatements.push(
@@ -84,12 +81,11 @@ export class UpdateMigrationService extends MigrationService {
           )
         }
       }
-      const newTriggersSQL = this.triggerManager.generateTriggersSQLFromColumns(
-        {
+      const newTriggersSQL =
+        this.triggersManager.generateTriggersSQLFromColumns({
           tableName: tableName,
           columns: currentColumns,
-        }
-      )
+        })
       allUpTriggersSQL.push(newTriggersSQL)
     }
 
@@ -119,7 +115,7 @@ export class UpdateMigrationService extends MigrationService {
 
     for (const [tableName] of tableAlterations.entries()) {
       const oldTriggers =
-        await this.triggerManager.getTriggersForTable(tableName)
+        await this.triggersManager.getTriggersForTable(tableName)
       allDownTriggersSQL.push(oldTriggers)
     }
     const downStatements = downSQL
@@ -139,16 +135,6 @@ export class UpdateMigrationService extends MigrationService {
       audit: allDownAuditSQLStatements,
       triggers: allDownTriggersSQL,
     }
-  }
-
-  private async getUpdatedColumnsForTable(
-    tableName: string
-  ): Promise<string[]> {
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    const [columns] = await this.dbConnection.query<[{ Field: string }[], any]>(
-      `SHOW COLUMNS FROM ${tableName}`
-    )
-    return columns.map((col) => col.Field)
   }
 
   private updateColumns(
