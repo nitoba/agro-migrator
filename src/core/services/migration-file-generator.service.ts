@@ -10,7 +10,7 @@ interface GenerateMigrationFileOptions {
   triggersDownSQLStatements?: TriggersResult[]
   routineSQLStatement?: string
   routineDefinitions?: CreateRoutineDefinition
-  customSQLStatement?: string
+  rawSQLStatement?: string
 }
 
 export class MigrationFileGeneratorService {
@@ -26,13 +26,13 @@ export class MigrationFileGeneratorService {
       downSQLStatements,
       auditUpSQLStatements,
       auditDownSQLStatements,
-      customSQLStatement,
+      rawSQLStatement,
       routineSQLStatement,
       routineDefinitions,
     } = options
 
     // Adiciona os statements para o UP
-    this.builder.addToUpStatementsFromCustomSQL(customSQLStatement)
+    this.builder.addToUpStatementsFromCustomSQL(rawSQLStatement)
     this.builder.addToUpStatementsFromRoutineSQL(
       routineSQLStatement,
       routineDefinitions

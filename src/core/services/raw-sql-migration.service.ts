@@ -75,7 +75,7 @@ export class RawSQLMigrationService extends MigrationService {
 
     const migrationFilePathCreated =
       await this.migrationFileGenerator.generateMigrationFile({
-        customSQLStatement: upSQLStatements,
+        rawSQLStatement: upSQLStatements,
         downSQLStatements: downSQLStatements,
       })
 

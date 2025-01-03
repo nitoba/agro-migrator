@@ -6,20 +6,23 @@ import type {
 import { MigrationFileBuilder } from '../../core/migration.builder.interface'
 
 export class DefaultMigrationFileBuilder extends MigrationFileBuilder {
-  public addToUpStatementsFromSQL(sqlStatements?: string[]): void {
-    if (sqlStatements && sqlStatements.length > 0) {
-      for (const sqlStatement of sqlStatements) {
-        this.upStatements.push(`await queryRunner.query(\`${sqlStatement}\`)`)
+  private addStatements(
+    statements: string[] | undefined,
+    targetArray: string[]
+  ): void {
+    if (statements && statements.length > 0) {
+      for (const statement of statements) {
+        targetArray.push(`await queryRunner.query(\`${statement}\`)`)
       }
     }
   }
 
+  public addToUpStatementsFromSQL(sqlStatements?: string[]): void {
+    this.addStatements(sqlStatements, this.upStatements)
+  }
+
   public addToDownStatementsFromSQL(sqlStatements?: string[]): void {
-    if (sqlStatements && sqlStatements.length > 0) {
-      for (const sqlStatement of sqlStatements) {
-        this.downStatements.push(`await queryRunner.query(\`${sqlStatement}\`)`)
-      }
-    }
+    this.addStatements(sqlStatements, this.downStatements)
   }
 
   public addToUpStatementsFromTriggersSQL(

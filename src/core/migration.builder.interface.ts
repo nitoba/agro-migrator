@@ -11,17 +11,15 @@ export abstract class MigrationFileBuilder {
   protected migrationName: string
   protected outputDir: string
   protected className: string
-  protected upStatements: string[]
+  protected upStatements: string[] = []
   protected downStatements: string[] = []
   private timestamp: number
 
   constructor({ migrationName, outputDir }: MigrationFileBuilderArgs) {
     this.timestamp = Date.now()
-    this.migrationName = migrationName.trim()
     this.migrationName = createSlug(migrationName)
     this.outputDir = outputDir
     this.className = this.generateClassName(this.migrationName)
-    this.upStatements = []
   }
 
   private generateClassName(name: string): string {
@@ -45,9 +43,7 @@ export abstract class MigrationFileBuilder {
     routineSQL?: string,
     routineDefinitions?: CreateRoutineDefinition
   ): void
-  public abstract addToUpStatementsFromCustomSQL(
-    customSQLStatement?: string
-  ): void
+  public abstract addToUpStatementsFromCustomSQL(rawSQLStatement?: string): void
 
   public buildMigrationFileContent(): string {
     return `
