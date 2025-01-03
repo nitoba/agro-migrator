@@ -5,7 +5,7 @@ import {
 } from './utils/db-connection'
 import { loadConfig } from './utils/load-config'
 import { logger } from './utils/logger'
-import { container } from './infra/container'
+import { appModule } from './infra/app.module'
 import { MigrationConfig } from './core/types/config.schema'
 import { MigrationRunner } from './infra/cli'
 
@@ -19,10 +19,10 @@ try {
 
   logger.info('Inicializando a aplicação... 🍃'.toUpperCase())
 
-  container.addConstant(MigrationConfig, config)
-  container.addConstant(DB_CONNECTION, dbConnection)
+  appModule.addConstant(MigrationConfig, config)
+  appModule.addConstant(DB_CONNECTION, dbConnection)
 
-  const runner = container.get<MigrationRunner>(MigrationRunner)
+  const runner = appModule.get<MigrationRunner>(MigrationRunner)
   await runner.run()
 } catch (error) {
   logger.error(error)

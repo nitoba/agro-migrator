@@ -5,7 +5,7 @@ import { MigrationConfig } from '@/core/types/config.schema'
 import { logger } from '@/utils/logger'
 import chalk from 'chalk'
 import { inject, injectable } from 'inversify'
-import { container } from '../container'
+import { appModule } from '../app.module'
 import { MigrationFileBuilder } from '@/core/migration.builder.interface'
 import type { MigrationService } from '@/core/migration.service.interface'
 
@@ -45,9 +45,9 @@ export class MigrationRunner {
     s.start('Migration create')
     s.message('Criando migration...')
 
-    const migrationService = container.get<MigrationService>(migrationType)
+    const migrationService = appModule.get<MigrationService>(migrationType)
 
-    const builder = container.get<MigrationFileBuilder>(MigrationFileBuilder)
+    const builder = appModule.get<MigrationFileBuilder>(MigrationFileBuilder)
 
     builder.collectRequiredInformation({
       migrationName,
