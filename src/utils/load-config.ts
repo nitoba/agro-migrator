@@ -28,10 +28,7 @@ export async function loadConfig(): Promise<MigrationConfig> {
 
   try {
     const { default: userConfig } = await import(configPath)
-    const result = validateConfig(userConfig)
-
-    console.log('Configuração carregada com sucesso:', result)
-    return result
+    return validateConfig(userConfig)
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(
