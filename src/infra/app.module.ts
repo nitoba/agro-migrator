@@ -18,28 +18,22 @@ import { Module } from './decorators/module'
   providers: [
     { provide: IRepository, useClass: DatabaseRepository },
     { provide: MigrationTypes.UPDATE, useClass: AlterTableMigrationService },
-    {
-      provide: AuditTableSQLGeneratorService,
-      useClass: AuditTableSQLGeneratorService,
-    },
     { provide: MigrationTypes.CREATE, useClass: CreateTableMigrationService },
-    {
-      provide: MigrationFileGeneratorService,
-      useClass: MigrationFileGeneratorService,
-    },
     { provide: MigrationTypes.CUSTOM, useClass: RawSQLMigrationService },
     {
       provide: MigrationTypes.ROUTINE,
       useClass: StoredProcedureMigrationService,
     },
-    { provide: TriggersManagerService, useClass: TriggersManagerService },
     {
       provide: MigrationFileBuilder,
       useClass: DefaultMigrationFileBuilder,
       scope: 'singleton',
     },
-    { provide: MigrationPrompts, useClass: MigrationPrompts },
-    { provide: MigrationRunner, useClass: MigrationRunner },
+    MigrationFileGeneratorService,
+    AuditTableSQLGeneratorService,
+    TriggersManagerService,
+    MigrationPrompts,
+    MigrationRunner,
   ],
 })
 export class AppModule {}
