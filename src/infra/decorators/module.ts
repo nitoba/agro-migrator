@@ -5,6 +5,7 @@ type ProviderWithConfig = {
   provide: interfaces.ServiceIdentifier
   useClass: interfaces.Newable
   scope?: 'singleton' | 'transient' | 'request'
+  isLazy?: boolean
 }
 
 type Provider = ProviderWithConfig | ProviderWithConfig['provide']
@@ -25,27 +26,26 @@ export function Module(options?: moduleOptions) {
 
   for (const provider of providers) {
     if (isProviderWithConfig(provider)) {
+      const binding = diContainer.bind(provider.provide).to(provider.useClass)
+
+      if (provider.isLazy) {
+        binding.onActivation((_, injectable) => {
+          return () => injectable
+        })
+      }
+
       switch (provider.scope) {
         case 'singleton':
-          diContainer
-            .bind(provider.provide)
-            .to(provider.useClass)
-            .inSingletonScope()
+          binding.inSingletonScope()
           break
         case 'transient':
-          diContainer
-            .bind(provider.provide)
-            .to(provider.useClass)
-            .inTransientScope()
+          binding.inTransientScope()
           break
         case 'request':
-          diContainer
-            .bind(provider.provide)
-            .to(provider.useClass)
-            .inRequestScope()
+          binding.inRequestScope()
           break
         default:
-          diContainer.bind(provider.provide).to(provider.useClass)
+          break
       }
     } else {
       diContainer.bind(provider).toSelf()

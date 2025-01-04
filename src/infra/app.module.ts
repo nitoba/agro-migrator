@@ -17,9 +17,21 @@ import { Module } from './decorators/module'
 @Module({
   providers: [
     { provide: IRepository, useClass: DatabaseRepository },
-    { provide: MigrationTypes.UPDATE, useClass: AlterTableMigrationService },
-    { provide: MigrationTypes.CREATE, useClass: CreateTableMigrationService },
-    { provide: MigrationTypes.CUSTOM, useClass: RawSQLMigrationService },
+    {
+      provide: MigrationTypes.UPDATE,
+      useClass: AlterTableMigrationService,
+      isLazy: true,
+    },
+    {
+      provide: MigrationTypes.CREATE,
+      useClass: CreateTableMigrationService,
+      isLazy: true,
+    },
+    {
+      provide: MigrationTypes.CUSTOM,
+      useClass: RawSQLMigrationService,
+      isLazy: true,
+    },
     {
       provide: MigrationTypes.ROUTINE,
       useClass: StoredProcedureMigrationService,
