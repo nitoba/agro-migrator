@@ -20,10 +20,10 @@ try {
 
   logger.info('Inicializando a aplicação... 🍃'.toUpperCase())
 
-  new AppModule()
-
   DiContainer.addProvider(MigrationConfig, config)
   DiContainer.addProvider(DB_CONNECTION, dbConnection)
+
+  new AppModule()
 
   const runner = DiContainer.get(MigrationRunner)
   await runner.run()
