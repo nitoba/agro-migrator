@@ -4,12 +4,22 @@ import {
 } from '@/core/types/config.schema'
 import path from 'node:path'
 import { ZodError } from 'zod'
+import { argv } from 'node:process'
 
-// TODO: add support for multiple config files and flag to specify which one to use
 const DEFAULT_CONFIG_PATH = path.resolve('migration.config.ts')
 
+function getConfigPath(): string {
+  const configFlagIndex = argv.indexOf('--config')
+  if (configFlagIndex !== -1 && argv[configFlagIndex + 1]) {
+    return path.resolve(argv[configFlagIndex + 1])
+  }
+  return DEFAULT_CONFIG_PATH
+}
+
 export async function loadConfig(): Promise<MigrationConfig> {
-  if (!(await Bun.file(DEFAULT_CONFIG_PATH).exists())) {
+  const configPath = getConfigPath()
+
+  if (!(await Bun.file(configPath).exists())) {
     throw new Error(
       `Arquivo de configuração não encontrado na raiz do projeto: ${DEFAULT_CONFIG_PATH}.
       Certifique-se de criar um arquivo chamado "migration.config.ts".`
@@ -17,8 +27,11 @@ export async function loadConfig(): Promise<MigrationConfig> {
   }
 
   try {
-    const { default: userConfig } = await import(DEFAULT_CONFIG_PATH)
-    return validateConfig(userConfig)
+    const { default: userConfig } = await import(configPath)
+    const result = validateConfig(userConfig)
+
+    console.log('Configuração carregada com sucesso:', result)
+    return result
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(
