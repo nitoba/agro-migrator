@@ -127,21 +127,73 @@ Instale o agro-migrator usando os métodos abaixo:
 
 ### 🤖 Uso
 
-Execute o agro-migrator com o seguinte comando:
+## Configuração
 
-```sh
-❯ bun run start
-```
+1. Crie um arquivo `migration.config.ts` na raiz do projeto com as seguintes configurações:
+
+   - `outputDir`: Define o diretório onde os arquivos de migração serão armazenados. Exemplo: `"./src/migrations"`.
+   - `sqlFilesDir`: Indica o diretório onde os arquivos SQL de entrada estão localizados. Exemplo: `"./src/tmp"`.
+   - `dbConnection`: Configurações de conexão com o banco de dados:
+     - `host`: Endereço do servidor do banco de dados. Exemplo: `"localhost"`.
+     - `port`: Porta do banco de dados. Geralmente `3306` para MySQL.
+     - `username`: Nome de usuário para autenticação no banco de dados.
+     - `password`: Senha do usuário do banco de dados.
+     - `database`: Nome do banco de dados a ser usado.
+
+   ```typescript
+   export default {
+     outputDir: "./src/migrations",
+     sqlFilesDir: "./src/tmp",
+     dbConnection: {
+       host: "localhost",
+       port: 3306,
+       username: "seu_usuario",
+       password: "sua_senha",
+       database: "nome_do_banco",
+     },
+   };
+   ```
+
+2. Certifique-se de que o diretório de saída (`outputDir`) e o diretório de arquivos SQL (`sqlFilesDir`) existam. 📂🗃️📝
 
 ---
 
-### 🧪 Testes
+## Como Usar
 
-Execute os testes usando o comando:
+### Executar a Ferramenta
 
-```sh
-❯ bun run test
+Para usar a versão compilada do Agro-Migrator, execute o binário gerado após a compilação. Por exemplo, no Linux:
+
+```bash
+./agro-migrator
 ```
+
+No Windows, você pode executar:
+
+```bash
+agro-migrator.exe
+```
+
+Após executar o comando, você verá uma interface interativa no terminal que solicitará as informações necessárias para a migração. Por exemplo:
+
+```
+🚀 Vamos criar uma migration? (Sim/Não)
+> Sim
+
+Qual tipo de migração você deseja criar?
+1. Criar tabelas
+2. Atualizar tabelas
+3. Routine
+4. Criação customizada
+> 1
+
+Qual o nome da migration?
+> create_users_table
+
+✅ Migration criada com sucesso em: ./src/migrations/1735952020374-create_users_table.ts
+```
+
+2. Responda às perguntas no prompt interativo para definir o tipo de migração, nome e arquivo SQL (se aplicável).
 
 ---
 
