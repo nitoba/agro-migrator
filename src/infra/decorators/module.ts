@@ -1,16 +1,22 @@
 import { DiContainer } from '../container'
 import { type interfaces } from 'inversify'
 
-type ExplicityProvider = {
+type ProviderWithConfig = {
   provide: interfaces.ServiceIdentifier
   useClass: interfaces.Newable
   scope?: 'singleton' | 'transient' | 'request'
 }
 
-type Provider = ExplicityProvider | ExplicityProvider['provide']
+type Provider = ProviderWithConfig | ProviderWithConfig['provide']
 
 type moduleOptions = {
   providers?: Provider[]
+}
+
+function isProviderWithConfig(
+  provider: Provider
+): provider is ProviderWithConfig {
+  return (provider as ProviderWithConfig).provide !== undefined
 }
 
 export function Module(options?: moduleOptions) {
@@ -18,7 +24,7 @@ export function Module(options?: moduleOptions) {
   const providers = options?.providers ?? []
 
   for (const provider of providers) {
-    if (isExplicityProvider(provider)) {
+    if (isProviderWithConfig(provider)) {
       switch (provider.scope) {
         case 'singleton':
           diContainer
@@ -48,10 +54,4 @@ export function Module(options?: moduleOptions) {
 
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   return (target: any) => target
-}
-
-function isExplicityProvider(
-  provider: Provider
-): provider is ExplicityProvider {
-  return (provider as ExplicityProvider).provide !== undefined
 }
