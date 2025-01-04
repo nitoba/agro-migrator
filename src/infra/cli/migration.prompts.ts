@@ -13,6 +13,7 @@ import {
 import { inject, injectable } from 'inversify'
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
+import { z } from 'zod'
 
 export interface MigrationInfo {
   migrationType: keyof typeof MigrationTypes
@@ -87,25 +88,26 @@ export class MigrationPrompts {
               },
             ],
           }),
-        migrationName: () =>
+        migrationName: ({ results }) =>
           text({
             message: 'Qual o nome da migration?',
-            // TODO: Adicionar um placeholder baseado no tipo de migration
-            placeholder: 'create_users_table',
-            // TODO: Adicionar um default value baseado no tipo de migration
-            defaultValue: `Create${Date.now()}${Math.floor(Math.random() * 1000)}`,
+            placeholder: `Digite o nome da migration (${results.migrationType?.toLowerCase()})`,
             validate: (value) => {
-              // TODO: Usar o zod para validar o nome da migration
-              if (value.length === 0) {
-                return 'O nome da migration não pode ser vazio'
-              }
+              const migrationNameSchema = z
+                .string()
+                .min(3, 'O nome da migration deve ter pelo menos 3 caracteres')
+                .max(
+                  255,
+                  'O nome da migration deve ter no máximo 255 caracteres'
+                )
 
-              if (value.length < 3) {
-                return 'O nome da migration deve ter pelo menos 3 caracteres'
-              }
-
-              if (value.length > 255) {
-                return 'O nome da migration deve ter no máximo 255 caracteres'
+              try {
+                migrationNameSchema.parse(value)
+              } catch (error) {
+                if (error instanceof z.ZodError) {
+                  return error.errors[0].message
+                }
+                return 'Nome inválido'
               }
             },
           }),
