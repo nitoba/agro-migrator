@@ -7,7 +7,7 @@ type ExplicityProvider = {
   scope?: 'singleton' | 'transient' | 'request'
 }
 
-type Provider = ExplicityProvider | interfaces.ServiceIdentifier
+type Provider = ExplicityProvider | ExplicityProvider['provide']
 
 type moduleOptions = {
   providers?: Provider[]
