@@ -5,9 +5,10 @@ import {
 } from './utils/db-connection'
 import { loadConfig } from './utils/load-config'
 import { logger } from './utils/logger'
-import { appModule } from './infra/app.module'
+import { AppModule } from './infra/app.module'
 import { MigrationConfig } from './core/types/config.schema'
 import { MigrationRunner } from './infra/cli'
+import { DiContainer } from './infra/container'
 
 try {
   logger.info('Carregando configurações... 🛠️'.toUpperCase())
@@ -19,10 +20,12 @@ try {
 
   logger.info('Inicializando a aplicação... 🍃'.toUpperCase())
 
-  appModule.addConstant(MigrationConfig, config)
-  appModule.addConstant(DB_CONNECTION, dbConnection)
+  new AppModule()
 
-  const runner = appModule.get<MigrationRunner>(MigrationRunner)
+  DiContainer.addProvider(MigrationConfig, config)
+  DiContainer.addProvider(DB_CONNECTION, dbConnection)
+
+  const runner = DiContainer.get(MigrationRunner)
   await runner.run()
 } catch (error) {
   logger.error(error)

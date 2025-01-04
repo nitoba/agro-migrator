@@ -1,4 +1,4 @@
-import type { MigrationFileGeneratorService } from '@/core/services/migration-file-generator.service'
+import { MigrationFileGeneratorService } from '@/core/services/migration-file-generator.service'
 import {
   MigrationService,
   type MigrationParams,

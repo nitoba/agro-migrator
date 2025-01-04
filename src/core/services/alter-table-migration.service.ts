@@ -1,13 +1,13 @@
 import { parseAlterTableSQL } from '@/core/parsers/alter-table-parser'
-import type { TriggersManagerService } from '@/core/services/triggers-manager.service'
-import type { MigrationFileGeneratorService } from '@/core/services/migration-file-generator.service'
+import { TriggersManagerService } from '@/core/services/triggers-manager.service'
+import { MigrationFileGeneratorService } from '@/core/services/migration-file-generator.service'
 import type { AlterTableDefinition, TriggersResult } from '@/core/types'
 import {
   MigrationService,
   type MigrationParams,
 } from '../migration.service.interface'
-import type { AuditTableSQLGeneratorService } from './audit-table-generator.service'
-import type { IRepository } from '../repositories/repository'
+import { AuditTableSQLGeneratorService } from './audit-table-generator.service'
+import { IRepository } from '../repositories/repository'
 import { injectable } from 'inversify'
 
 type ProcessSQLResult = {

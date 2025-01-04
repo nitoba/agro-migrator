@@ -1,4 +1,4 @@
-import type { MigrationFileGeneratorService } from '@/core/services/migration-file-generator.service'
+import { MigrationFileGeneratorService } from '@/core/services/migration-file-generator.service'
 import {
   MigrationService,
   type MigrationParams,
@@ -10,13 +10,11 @@ import { injectable } from 'inversify'
 export class RawSQLMigrationService extends MigrationService {
   processUpSQL(upSQL: string): SQLProcessorResult {
     const upSQLStatements = this.splitSQLStatements(upSQL)
-    console.log(upSQLStatements)
     return { main: upSQLStatements }
   }
 
   processDownSQL(downSQL: string): SQLProcessorResult {
     const downSQLStatements = this.splitSQLStatements(downSQL)
-    console.log(downSQLStatements)
     return { main: downSQLStatements }
   }
 
