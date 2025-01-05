@@ -66,6 +66,7 @@ export type TriggersResult = {
 export interface RoutineParameter {
   name: string
   type: string
+  default?: string
 }
 
 export interface CreateRoutineDefinition {

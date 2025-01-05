@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun run ./src/index.ts",
+    "test": "bun test",
     "build": "bun build ./src/index.ts --outfile agro-migrator --compile --minify",
     "build:win": "bun build ./src/index.ts --outfile agro-migrator --compile --minify  --target=bun-windows-x64"
   },

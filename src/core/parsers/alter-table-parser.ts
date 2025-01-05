@@ -15,6 +15,17 @@ export interface ActionNode {
   index?: string
   constraint?: string
   create_definitions?: CreateDefinition
+  default_val?: {
+    type: string
+    value: {
+      type: string
+      value: string
+    }
+  }
+  nullable?: {
+    type: string
+    value: string
+  }
 }
 
 export interface CreateDefinition {
@@ -159,8 +170,6 @@ function isRenameTableAction(actionNode: ActionNode): boolean {
 function handleRenameTableAction(actionNode: ActionNode): AlterColumnOperation {
   return {
     action: 'rename_column',
-    newTableName: actionNode.column.column,
-    columnName: actionNode.column.column,
     newColumnName: actionNode.column.column,
     oldColumnName: actionNode.old_column?.column,
     // default: actionNode.definition.default_val?.value.value,
@@ -179,10 +188,11 @@ function handleColumnActions(actionNode: ActionNode): AlterColumnOperation[] {
         {
           action: 'add',
           columnName: actionNode.column.column,
-          columnType: actionNode.definition.dataType,
-          isNullable: actionNode.definition.nullable
-            ? actionNode.definition.nullable.value !== 'not null'
-            : true,
+          columnType:
+            // @ts-ignore
+            `${actionNode.definition.dataType}${actionNode.definition.parentheses ? `(${actionNode.definition.length}${actionNode.definition.scale ? `, ${actionNode.definition.scale}` : ''})` : ''}${actionNode.definition.suffix ? ` ${actionNode.definition.suffix.join(' ')}` : ''}`.trim(),
+          isNullable: actionNode.nullable?.value !== 'not null',
+          //default: actionNode.definition.default_val?.value.value,
           default: actionNode.definition.default_val?.value.value,
           isPrimaryKey: actionNode.definition.primary === 'primary key',
           extra: actionNode.definition.auto_increment
@@ -204,11 +214,11 @@ function handleColumnActions(actionNode: ActionNode): AlterColumnOperation[] {
         {
           action: 'modify',
           columnName: actionNode.column.column as string,
-          columnType: actionNode.definition.dataType,
-          isNullable: actionNode.definition.nullable
-            ? actionNode.definition.nullable.value !== 'not null'
-            : true,
-          default: actionNode.definition.default_val?.value.value,
+          columnType:
+            // @ts-ignore
+            `${actionNode.definition.dataType}${actionNode.definition.parentheses ? `(${actionNode.definition.length}${actionNode.definition.scale ? `, ${actionNode.definition.scale}` : ''})` : ''}${actionNode.definition.suffix ? ` ${actionNode.definition.suffix.join(' ')}` : ''}`.trim(),
+          isNullable: actionNode.nullable?.value !== 'not null',
+          default: actionNode.default_val?.value.value,
           isPrimaryKey: actionNode.definition.primary === 'primary key',
           extra: actionNode.definition.auto_increment
             ? 'AUTO_INCREMENT'
@@ -237,7 +247,7 @@ function handleColumnActions(actionNode: ActionNode): AlterColumnOperation[] {
       }
       break
 
-    case 'change': {
+    case 'change':
       return [
         {
           action: 'change',
@@ -256,7 +266,6 @@ function handleColumnActions(actionNode: ActionNode): AlterColumnOperation[] {
           length: actionNode.definition.length,
         },
       ]
-    }
   }
   return []
 }
@@ -274,7 +283,7 @@ function handleIndexActions(actionNode: ActionNode): AlterColumnOperation[] {
       return [
         {
           action: 'add_index',
-          indexName: actionNode.definition.index,
+          indexName: actionNode.index,
           indexColumns,
         },
       ]
@@ -309,13 +318,13 @@ function handleConstraintActions(
                 typeof col.column === 'string' ? col.column : ''
               ) || [],
             referencedOnDelete:
-              cDef.reference_definition.on_action.find(
-                (item) => item.type === 'on delete'
-              )?.value.value || '',
+              cDef.reference_definition.on_action
+                .find((item) => item.type === 'on delete')
+                ?.value.value.toUpperCase() || '',
             referencedOnUpdate:
-              cDef.reference_definition.on_action.find(
-                (item) => item.type === 'on update'
-              )?.value.value || '',
+              cDef.reference_definition.on_action
+                .find((item) => item.type === 'on update')
+                ?.value.value.toUpperCase() || '',
           },
         ]
       }

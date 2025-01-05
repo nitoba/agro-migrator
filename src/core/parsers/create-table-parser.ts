@@ -4,15 +4,20 @@ import { Parser } from 'node-sql-parser'
 
 const parser = new Parser()
 
-type DefaultVal = {
+export type DefaultVal = {
   type: string
   name: {
-    name: [
-      {
-        type: string
-        value: string
-      },
-    ]
+    name:
+      | [
+          {
+            type: string
+            value: string
+          },
+        ]
+      | {
+          type: string
+          value: string
+        }
   }
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   over: any | null
@@ -53,13 +58,17 @@ export function parseCreateTableSQL(sql: string): TableDefinition[] {
             col.column.type === 'column_ref'
               ? col.column.column
               : col.column.as,
-          type: col.definition.dataType,
-          isNullable: !!col.nullable,
-          isPrimaryKey: !!col.primary,
+          // @ts-ignore
+          type: `${col.definition.dataType}${col.definition.parentheses ? `(${col.definition.length}${col.definition.scale ? `, ${col.definition.scale}` : ''})` : ''}${col.definition.suffix ? ` ${col.definition.suffix.join(' ')}` : ''}`.trim(),
+          isNullable: col.nullable?.value !== 'not null',
+          // @ts-ignore
+          isPrimaryKey: !!col.primary_key,
           default: col.default_val
-            ? (col.default_val.value as DefaultVal).name.name[0].value
+            ? Array.isArray((col.default_val.value as DefaultVal).name)
+              ? col.default_val.value.name.name[0].value
+              : col.default_val.value.value
             : undefined,
-          extra: col.auto_increment ? 'AUTO_INCREMENT' : undefined,
+          extra: col.auto_increment?.toUpperCase(),
         } as ColumnDefinition
       })
 
