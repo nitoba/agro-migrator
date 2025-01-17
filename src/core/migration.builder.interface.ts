@@ -27,8 +27,10 @@ export abstract class MigrationFileBuilder {
   private generateClassName(name: string): string {
     return (
       name
-        .split(/[_,-]/)
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .split(/[_,-]|(?=[A-Z])/)
+        .map(
+          (part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+        )
         .join('') + this.timestamp
     )
   }

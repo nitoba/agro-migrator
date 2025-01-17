@@ -2,6 +2,7 @@ export function createSlug(text: string): string {
   return (
     text
       .toString()
+      .replace(/(?=[A-Z])/g, '-')
       .toLowerCase()
       .normalize('NFD')
       // biome-ignore lint/suspicious/noMisleadingCharacterClass: <explanation>

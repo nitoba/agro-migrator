@@ -20,17 +20,14 @@ import { Module } from './decorators/module'
     {
       provide: MigrationTypes.UPDATE,
       useClass: AlterTableMigrationService,
-      isLazy: true,
     },
     {
       provide: MigrationTypes.CREATE,
       useClass: CreateTableMigrationService,
-      isLazy: true,
     },
     {
       provide: MigrationTypes.CUSTOM,
       useClass: RawSQLMigrationService,
-      isLazy: true,
     },
     {
       provide: MigrationTypes.ROUTINE,
